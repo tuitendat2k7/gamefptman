@@ -149,6 +149,7 @@ const CharacterAvatar: React.FC<any> = ({ stats, major }) => {
 
 export default function App() {
   const [phase, setPhase] = useState<GamePhase | "AUTH" | "LEADERBOARD">("AUTH");
+  const [prevPhase, setPrevPhase] = useState<any>("START");
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -473,6 +474,20 @@ export default function App() {
                 <span>Nhật ký ({history.length})</span>
               </button>
             )}
+            {/* Nút Bảng xếp hạng hiển thị khi đã đăng nhập */}
+            {currentUser && phase !== "AUTH" && phase !== "LEADERBOARD" && (
+              <button 
+                onClick={() => { 
+                  gameAudio.playTap(); 
+                  setPrevPhase(phase); // Lưu lại màn hình hiện tại đang chơi
+                  setPhase("LEADERBOARD"); 
+                }} 
+                className="px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 transition-all text-xs font-bold text-amber-400 flex items-center gap-1.5 cursor-pointer select-none"
+              >
+                <Trophy className="h-3.5 w-3.5" />
+                <span className="hidden md:inline">Xếp hạng</span>
+              </button>
+            )}
             <button onClick={() => { setSoundEnabled(!soundEnabled); gameAudio.playTap(); }} className="p-2 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 text-stone-300 hover:text-stone-100 transition-all active:scale-90 cursor-pointer" title={soundEnabled ? "Tắt âm thanh" : "Bật âm thanh"}>
               {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </button>
@@ -623,7 +638,7 @@ export default function App() {
                       ))
                     )}
                   </div>
-                  <button onClick={() => setPhase(currentUser ? "START" : "AUTH")} className="w-full mt-6 py-4 rounded-xl bg-black/60 hover:bg-black/80 border border-white/10 text-stone-200 font-black text-sm uppercase transition-all cursor-pointer backdrop-blur-md">
+                  <button onClick={() => setPhase(prevPhase)} className="w-full mt-6 py-4 rounded-xl bg-black/60 hover:bg-black/80 border border-white/10 text-stone-200 font-black text-sm uppercase transition-all cursor-pointer backdrop-blur-md">
                     Quay lại
                   </button>
                 </motion.div>
@@ -651,7 +666,7 @@ export default function App() {
                     <button onClick={handleStartGame} className="w-full py-4.5 rounded-xl bg-amber-500 text-neutral-950 font-black text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-[1.02] active:scale-95 transition-all cursor-pointer mx-auto block uppercase tracking-widest">
                       Bắt đầu nhập học
                     </button>
-                    <button onClick={() => setPhase("LEADERBOARD")} className="w-full py-4.5 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/10 text-amber-400 font-black text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all cursor-pointer mx-auto flex items-center justify-center gap-2 uppercase tracking-widest">
+                    <button onClick={() => { setPrevPhase(phase); setPhase("LEADERBOARD"); }} className="w-full py-4.5 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/10 text-amber-400 font-black text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all cursor-pointer mx-auto flex items-center justify-center gap-2 uppercase tracking-widest">
                       <Trophy className="h-4 w-4" /> Bảng xếp hạng
                     </button>
                   </div>
@@ -850,7 +865,7 @@ export default function App() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 max-w-md mx-auto pt-2">
-                    <button onClick={() => setPhase("LEADERBOARD")} className="w-full py-4.5 rounded-xl bg-amber-500 text-neutral-950 font-black text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-102 active:scale-95 transition-all cursor-pointer uppercase tracking-widest">
+                    <button onClick={() => { setPrevPhase(phase); setPhase("LEADERBOARD"); }} className="w-full py-4.5 rounded-xl bg-amber-500 text-neutral-950 font-black text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-102 active:scale-95 transition-all cursor-pointer uppercase tracking-widest">
                       Bảng Xếp Hạng
                     </button>
                     <button onClick={handleRestart} className="w-full py-4.5 rounded-xl bg-black/60 border border-white/10 text-stone-200 font-black text-sm shadow-lg hover:scale-102 active:scale-95 transition-all cursor-pointer uppercase tracking-widest backdrop-blur-md">
