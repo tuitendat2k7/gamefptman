@@ -747,55 +747,119 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="space-y-4 pt-2">
-                      <div className="flex items-center justify-between">
+                    <div className="space-y-4 pt-4">
+                      <div className="flex items-center justify-between pb-1">
                         <label className="text-xs font-black text-zinc-300 uppercase tracking-widest block drop-shadow-sm">Chọn hành động thực hiện:</label>
-                        <span className="text-xs font-mono font-black text-zinc-400 uppercase">Click để chọn</span>
+                        <span className="text-[10px] font-mono font-black text-zinc-400 uppercase bg-black/40 px-2 py-1 rounded-lg border border-white/10">Click để chọn</span>
                       </div>
+                      
                       {slotSchedule.type === "class" ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                          <motion.button whileHover={{ scale: 1.01, borderColor: "rgba(245, 158, 11, 0.5)" }} whileTap={{ scale: 0.98 }} onClick={() => handlePerformSlotActivity("lecture", "Học Chính Khóa", { gpa: 7, stress: 8, energy: -12, money: 0, happiness: -2 })} className="text-left p-5 rounded-2xl bg-black/40 hover:bg-black/60 border border-white/10 backdrop-blur-md transition-all cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg">
-                            <div className="flex items-center gap-3"><div className="h-11 w-11 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform shrink-0 shadow-inner"><GraduationCap className="h-6 w-6 drop-shadow-sm" /></div><div><h5 className="text-sm font-black text-stone-100 uppercase tracking-wide drop-shadow-sm">Lên Lớp Học</h5><span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-400 uppercase font-mono font-black mt-1 inline-block shadow-sm">Bắt buộc</span></div></div>
-                            <div className="flex flex-wrap gap-1.5 mt-4"><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 shadow-sm">+7 GPA</span><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 shadow-sm">-12 PIN</span><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-red-500/20 text-rose-300 shadow-sm">+8 ÁP LỰC</span></div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {/* Option 1: Lên Lớp Học */}
+                          <motion.button 
+                            whileHover={{ scale: 1.02, y: -4 }} 
+                            whileTap={{ scale: 0.98 }} 
+                            onClick={() => handlePerformSlotActivity("lecture", "Học Chính Khóa", { gpa: 7, stress: 8, energy: -12, money: 0, happiness: -2 })} 
+                            className="relative text-left p-5 rounded-3xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/10 hover:border-amber-500/50 backdrop-blur-md transition-all duration-500 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-[0_8px_30px_rgba(0,0,0,0.1)] overflow-hidden"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="relative flex items-start gap-3.5">
+                              <div className="h-12 w-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all shrink-0 shadow-inner">
+                                <GraduationCap className="h-6 w-6 drop-shadow-sm" />
+                              </div>
+                              <div className="pt-0.5">
+                                <h5 className="text-sm font-black text-stone-100 uppercase tracking-wide group-hover:text-amber-300 transition-colors">Lên Lớp Học</h5>
+                                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 uppercase font-mono font-black mt-1.5 inline-block shadow-sm">Bắt buộc</span>
+                              </div>
+                            </div>
+                            <div className="relative flex flex-wrap gap-2 mt-4">
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-sm">+7 GPA</span>
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 shadow-sm">-12 PIN</span>
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-rose-300 shadow-sm">+8 ÁP LỰC</span>
+                            </div>
                           </motion.button>
-                          <motion.button whileHover={{ scale: 1.01, borderColor: "rgba(244, 63, 94, 0.5)" }} whileTap={{ scale: 0.98 }} onClick={() => handlePerformSlotActivity("parttime", "Làm Thêm (Cúp học)", { gpa: -12, stress: 10, energy: -12, money: 15, happiness: -3 }, true)} className="text-left p-5 rounded-2xl bg-black/40 hover:bg-black/60 border border-white/10 backdrop-blur-md transition-all cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg">
-                            <div className="flex items-center gap-3"><div className="h-11 w-11 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-rose-400 group-hover:scale-105 transition-transform shrink-0 shadow-inner"><Coins className="h-6 w-6 drop-shadow-sm" /></div><div><h5 className="text-sm font-black text-stone-100 uppercase tracking-wide drop-shadow-sm">Cúp Làm Thêm</h5><span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 uppercase font-mono font-black mt-1 inline-block shadow-sm">Cúp học</span></div></div>
-                            <div className="flex flex-wrap gap-1.5 mt-4"><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 shadow-sm">+15 VNĐ</span><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 shadow-sm">-12 GPA</span><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 shadow-sm">-12 PIN</span></div>
+
+                          {/* Option 2: Cúp Làm Thêm */}
+                          <motion.button 
+                            whileHover={{ scale: 1.02, y: -4 }} 
+                            whileTap={{ scale: 0.98 }} 
+                            onClick={() => handlePerformSlotActivity("parttime", "Làm Thêm (Cúp học)", { gpa: -12, stress: 10, energy: -12, money: 15, happiness: -3 }, true)} 
+                            className="relative text-left p-5 rounded-3xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/10 hover:border-rose-500/50 backdrop-blur-md transition-all duration-500 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-[0_8px_30px_rgba(0,0,0,0.1)] overflow-hidden"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="relative flex items-start gap-3.5">
+                              <div className="h-12 w-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 group-hover:scale-110 group-hover:bg-rose-500/20 transition-all shrink-0 shadow-inner">
+                                <Coins className="h-6 w-6 drop-shadow-sm" />
+                              </div>
+                              <div className="pt-0.5">
+                                <h5 className="text-sm font-black text-stone-100 uppercase tracking-wide group-hover:text-rose-300 transition-colors">Cúp Làm Thêm</h5>
+                                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-400 uppercase font-mono font-black mt-1.5 inline-block shadow-sm">Cúp học</span>
+                              </div>
+                            </div>
+                            <div className="relative flex flex-wrap gap-2 mt-4">
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-sm">+15 VNĐ</span>
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 shadow-sm">-12 GPA</span>
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 shadow-sm">-12 PIN</span>
+                            </div>
                           </motion.button>
-                          <motion.button whileHover={{ scale: 1.01, borderColor: "rgba(129, 140, 248, 0.5)" }} whileTap={{ scale: 0.98 }} onClick={() => handlePerformSlotActivity("rest", "Ngủ Nướng (Cúp học)", { gpa: -15, stress: -10, energy: 20, money: 0, happiness: 8 }, true)} className="text-left p-5 rounded-2xl bg-black/40 hover:bg-black/60 border border-white/10 backdrop-blur-md transition-all cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg">
-                            <div className="flex items-center gap-3"><div className="h-11 w-11 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform shrink-0 shadow-inner"><Moon className="h-6 w-6 drop-shadow-sm" /></div><div><h5 className="text-sm font-black text-stone-100 uppercase tracking-wide drop-shadow-sm">Cúp Ngủ Nướng</h5><span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 uppercase font-mono font-black mt-1 inline-block shadow-sm">Cúp học</span></div></div>
-                            <div className="flex flex-wrap gap-1.5 mt-4"><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 shadow-sm">+20 PIN</span><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 shadow-sm">+8 VUI</span><span className="text-[11px] font-mono font-black px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 shadow-sm">-15 GPA</span></div>
+
+                          {/* Option 3: Cúp Ngủ Nướng */}
+                          <motion.button 
+                            whileHover={{ scale: 1.02, y: -4 }} 
+                            whileTap={{ scale: 0.98 }} 
+                            onClick={() => handlePerformSlotActivity("rest", "Ngủ Nướng (Cúp học)", { gpa: -15, stress: -10, energy: 20, money: 0, happiness: 8 }, true)} 
+                            className="relative text-left p-5 rounded-3xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/10 hover:border-indigo-500/50 backdrop-blur-md transition-all duration-500 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-[0_8px_30px_rgba(0,0,0,0.1)] overflow-hidden"
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="relative flex items-start gap-3.5">
+                              <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all shrink-0 shadow-inner">
+                                <Moon className="h-6 w-6 drop-shadow-sm" />
+                              </div>
+                              <div className="pt-0.5">
+                                <h5 className="text-sm font-black text-stone-100 uppercase tracking-wide group-hover:text-indigo-300 transition-colors">Cúp Ngủ Nướng</h5>
+                                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-400 uppercase font-mono font-black mt-1.5 inline-block shadow-sm">Cúp học</span>
+                              </div>
+                            </div>
+                            <div className="relative flex flex-wrap gap-2 mt-4">
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-sm">+20 PIN</span>
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-sm">+8 VUI</span>
+                              <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 shadow-sm">-15 GPA</span>
+                            </div>
                           </motion.button>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                           {[
-                            { id: "library", name: "Thư Viện", base: { gpa: 10, stress: 12, energy: -14, money: 0, happiness: -4 }, icon: <BookOpen className="h-6 w-6" />, col: "text-teal-400", border: "hover:border-teal-500/50", bg: "hover:bg-black/60", plus: "+10 GPA", minus: "-14 PIN" },
-                            { id: "parttime", name: "Làm Thêm", base: { gpa: -2, stress: 14, energy: -18, money: 20, happiness: -5 }, icon: <Coins className="h-6 w-6" />, col: "text-amber-400", border: "hover:border-amber-500/50", bg: "hover:bg-black/60", plus: "+20 VNĐ", minus: "-18 PIN" },
-                            { id: "club", name: "Câu Lạc Bộ", base: { gpa: 0, stress: -6, energy: -8, money: -3, happiness: 12 }, icon: <Users className="h-6 w-6" />, col: "text-pink-400", border: "hover:border-pink-500/50", bg: "hover:bg-black/60", plus: "+12 VUI", minus: "-6 ÁP LỰC" },
-                            { id: "rest", name: "Nghỉ Ngơi", base: { gpa: 0, stress: -10, energy: 18, money: 0, happiness: 6 }, icon: <Moon className="h-6 w-6" />, col: "text-indigo-400", border: "hover:border-indigo-500/50", bg: "hover:bg-black/60", plus: "+18 PIN", minus: "-10 ÁP LỰC" },
-                            { id: "party", name: "Nhậu Nhẹt", base: { gpa: -2, stress: -12, energy: -6, money: -8, happiness: 15 }, icon: <CupSoda className="h-6 w-6" />, col: "text-rose-400", border: "hover:border-rose-500/50", bg: "hover:bg-black/60", plus: "+15 VUI", minus: "-12 ÁP LỰC" }
+                            { id: "library", name: "Thư Viện", base: { gpa: 10, stress: 12, energy: -14, money: 0, happiness: -4 }, icon: <BookOpen className="h-6 w-6" />, col: "text-teal-400", borderHover: "hover:border-teal-500/50", glow: "from-teal-500/20", iconBg: "bg-teal-500/10 border-teal-500/30 group-hover:bg-teal-500/20", plus: "+10 GPA", minus: "-14 PIN" },
+                            { id: "parttime", name: "Làm Thêm", base: { gpa: -2, stress: 14, energy: -18, money: 20, happiness: -5 }, icon: <Coins className="h-6 w-6" />, col: "text-amber-400", borderHover: "hover:border-amber-500/50", glow: "from-amber-500/20", iconBg: "bg-amber-500/10 border-amber-500/30 group-hover:bg-amber-500/20", plus: "+20 VNĐ", minus: "-18 PIN" },
+                            { id: "club", name: "Câu Lạc Bộ", base: { gpa: 0, stress: -6, energy: -8, money: -3, happiness: 12 }, icon: <Users className="h-6 w-6" />, col: "text-pink-400", borderHover: "hover:border-pink-500/50", glow: "from-pink-500/20", iconBg: "bg-pink-500/10 border-pink-500/30 group-hover:bg-pink-500/20", plus: "+12 VUI", minus: "-6 ÁP LỰC" },
+                            { id: "rest", name: "Nghỉ Ngơi", base: { gpa: 0, stress: -10, energy: 18, money: 0, happiness: 6 }, icon: <Moon className="h-6 w-6" />, col: "text-indigo-400", borderHover: "hover:border-indigo-500/50", glow: "from-indigo-500/20", iconBg: "bg-indigo-500/10 border-indigo-500/30 group-hover:bg-indigo-500/20", plus: "+18 PIN", minus: "-10 ÁP LỰC" },
+                            { id: "party", name: "Nhậu Nhẹt", base: { gpa: -2, stress: -12, energy: -6, money: -8, happiness: 15 }, icon: <CupSoda className="h-6 w-6" />, col: "text-rose-400", borderHover: "hover:border-rose-500/50", glow: "from-rose-500/20", iconBg: "bg-rose-500/10 border-rose-500/30 group-hover:bg-rose-500/20", plus: "+15 VUI", minus: "-12 ÁP LỰC" }
                           ].map(act => (
-                            <motion.button key={act.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => handlePerformSlotActivity(act.id, act.name, act.base)} className={`text-center p-4 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md ${act.border} ${act.bg} transition-all cursor-pointer flex flex-col items-center justify-between min-h-[170px] md:h-48 group shadow-lg`}>
-                              <div className={`h-12 w-12 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-lg ${act.col} group-hover:scale-105 transition-transform shrink-0 shadow-inner`}>{act.icon}</div>
-                              <h5 className="text-xs md:text-sm font-black text-stone-100 uppercase tracking-wide mt-2 drop-shadow-sm">{act.name}</h5>
-                              <div className="w-full flex flex-col gap-1 mt-3">
-                                <span className="text-[11px] font-mono font-black py-0.5 rounded bg-emerald-500/20 text-emerald-400 block w-full text-center shadow-sm">{act.plus}</span>
-                                <span className="text-[11px] font-mono font-black py-0.5 rounded bg-rose-500/20 text-rose-400 block w-full text-center shadow-sm">{act.minus}</span>
+                            <motion.button 
+                              key={act.id} 
+                              whileHover={{ scale: 1.03, y: -4 }} 
+                              whileTap={{ scale: 0.98 }} 
+                              onClick={() => handlePerformSlotActivity(act.id, act.name, act.base)} 
+                              className={`relative text-center p-4 rounded-3xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/10 ${act.borderHover} backdrop-blur-md transition-all duration-500 cursor-pointer flex flex-col items-center justify-between min-h-[170px] md:h-48 group shadow-[0_8px_30px_rgba(0,0,0,0.1)] overflow-hidden`}
+                            >
+                              <div className={`absolute inset-0 bg-gradient-to-b ${act.glow} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                              
+                              <div className="relative flex flex-col items-center w-full">
+                                <div className={`h-12 w-12 rounded-2xl border flex items-center justify-center text-lg ${act.col} ${act.iconBg} group-hover:scale-110 transition-all shrink-0 shadow-inner`}>
+                                  {act.icon}
+                                </div>
+                                <h5 className="text-xs md:text-sm font-black text-stone-100 uppercase tracking-wide mt-3 drop-shadow-sm group-hover:text-white transition-colors">{act.name}</h5>
+                              </div>
+                              <div className="relative w-full flex flex-col gap-1.5 mt-3">
+                                <span className="text-[11px] font-mono font-black py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 block w-full text-center shadow-sm">{act.plus}</span>
+                                <span className="text-[11px] font-mono font-black py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 block w-full text-center shadow-sm">{act.minus}</span>
                               </div>
                             </motion.button>
                           ))}
                         </div>
                       )}
                     </div>
-                  </div>
-                  {showIntroTutorial && (
-                    <div className="p-4.5 bg-black/50 border border-amber-500/40 rounded-2xl relative text-xs md:text-sm text-amber-200 leading-relaxed font-sans flex items-start gap-2.5 animate-pulse backdrop-blur-xl shadow-lg">
-                      <Info className="h-5 w-5 shrink-0 text-amber-400 mt-0.5 drop-shadow-md" /><div className="flex-1"><span className="font-black text-stone-100 block mb-1 text-xs md:text-sm drop-shadow-sm">Mẹo Sinh Tồn:</span>Hãy đảm bảo pin (Energy) của bạn luôn trên 20% và Stress dưới 80%. Hãy ngủ nướng nếu thấy pin cạn kiệt, và đi nhậu hoặc CLB để xả bớt Stress khi áp lực thi cử quá tải!</div><button onClick={() => setShowIntroTutorial(false)} className="text-zinc-300 hover:text-white shrink-0 cursor-pointer text-xs font-bold px-1.5">✕</button>
-                    </div>
-                  )}
-                </motion.div>
-              )}
 
               {/* CÁC PHASE CÒN LẠI ĐƯỢC ÁP DỤNG GLASSMORPHISM TƯƠNG TỰ */}
               {phase === "DAILY_FEEDBACK" && dailyFeedback && (
