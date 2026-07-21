@@ -182,10 +182,19 @@ export default function App() {
   const SEMESTER_DAYS = 14;
 
   useEffect(() => { gameAudio.enabled = soundEnabled; }, [soundEnabled]);
+  // Tải thành tựu riêng cho từng tài khoản khi đăng nhập
   useEffect(() => {
-    const saved = localStorage.getItem("freshman_achievements");
-    if (saved) { try { setUnlockedAchievements(JSON.parse(saved)); } catch (e) { } }
-  }, []);
+    if (currentUser) {
+      const saved = localStorage.getItem(`achievements_${currentUser.username}`);
+      if (saved) {
+        try { setUnlockedAchievements(JSON.parse(saved)); } catch (e) { }
+      } else {
+        setUnlockedAchievements([]); // Tài khoản mới chưa có cúp
+      }
+    } else {
+      setUnlockedAchievements([]); // Đăng xuất thì xóa cúp trên màn hình
+    }
+  }, [currentUser]);
 
   const loadLeaderboard = async () => {
     try {
