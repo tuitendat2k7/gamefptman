@@ -664,7 +664,7 @@ export default function App() {
                   
                   <div className="grid grid-cols-2 gap-4 mt-6">
                     <button onClick={handleStartGame} className="w-full py-4.5 rounded-xl bg-amber-500 text-neutral-950 font-black text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-[1.02] active:scale-95 transition-all cursor-pointer mx-auto block uppercase tracking-widest">
-                      Bắt đầu nhập học
+                      Bắt đầu
                     </button>
                     <button onClick={() => { setPrevPhase(phase); setPhase("LEADERBOARD"); }} className="w-full py-4.5 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/10 text-amber-400 font-black text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all cursor-pointer mx-auto flex items-center justify-center gap-2 uppercase tracking-widest">
                       <Trophy className="h-4 w-4" /> Bảng xếp hạng
