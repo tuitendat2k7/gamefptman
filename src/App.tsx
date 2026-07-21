@@ -557,7 +557,7 @@ export default function App() {
                   
                   <div className="text-center space-y-2 mb-2">
                     <h2 className="text-2xl md:text-3xl font-display font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-br from-stone-100 to-zinc-400 drop-shadow-sm">
-                      Game Sinh Tồn Sinh Viên Năm Nhất <3
+                      Game Sinh Tồn Sinh Viên Năm Nhất hihi tester
                     </h2>
                     <p className="text-sm text-zinc-300 font-medium">
                       {authMode === "login" 
