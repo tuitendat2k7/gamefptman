@@ -860,6 +860,7 @@ export default function App() {
                         </div>
                       )}
                     </div>
+                  </div>
                   {showIntroTutorial && (
                     <div className="p-4.5 bg-black/50 border border-amber-500/40 rounded-2xl relative text-xs md:text-sm text-amber-200 leading-relaxed font-sans flex items-start gap-2.5 animate-pulse backdrop-blur-xl shadow-lg">
                       <Info className="h-5 w-5 shrink-0 text-amber-400 mt-0.5 drop-shadow-md" /><div className="flex-1"><span className="font-black text-stone-100 block mb-1 text-xs md:text-sm drop-shadow-sm">Mẹo Sinh Tồn:</span>Hãy đảm bảo pin (Energy) của bạn luôn trên 20% và Stress dưới 80%. Hãy ngủ nướng nếu thấy pin cạn kiệt, và đi nhậu hoặc CLB để xả bớt Stress khi áp lực thi cử quá tải!</div><button onClick={() => setShowIntroTutorial(false)} className="text-zinc-300 hover:text-white shrink-0 cursor-pointer text-xs font-bold px-1.5">✕</button>
