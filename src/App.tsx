@@ -93,7 +93,11 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    username: "", password: "", fullName: "Nguyễn Việt Đạt", studentId: "DE210164", avatar: "👨‍💻"
+    username: "", 
+    password: "", 
+    fullName: "",    // Đã xóa tên mặc định
+    studentId: "",   // Đã xóa mã số mặc định
+    avatar: "👨‍💻"
   });
 
   const [major, setMajor] = useState<"IT" | "BIZ" | "LANG" | any>("IT");
@@ -265,11 +269,15 @@ export default function App() {
           {phase === "AUTH" && (
             <motion.div key="auth" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} className="max-w-md mx-auto w-full p-8 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)] space-y-6 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-500" />
-              <div className="text-center space-y-1">
-                <h2 className="text-3xl font-display font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-br from-stone-100 to-zinc-500">
-                  {authMode === "login" ? "Cổng Sinh Viên" : "Nhập Học Mới"}
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-display font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-br from-stone-100 to-zinc-400 leading-snug">
+                  Game Sinh Tồn Sinh Viên Năm Nhất
                 </h2>
-                <p className="text-sm text-zinc-400 font-medium">Đăng nhập tài khoản Game DB FPT.</p>
+                <p className="text-sm text-zinc-400 font-medium">
+                  {authMode === "login" 
+                    ? "Đăng nhập tài khoản game Freshman Survival" 
+                    : "Đăng ký tài khoản game Freshman Survival"}
+                </p>
               </div>
 
               <div className="space-y-4">
