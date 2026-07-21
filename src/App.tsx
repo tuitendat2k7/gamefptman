@@ -513,7 +513,7 @@ export default function App() {
                 <div className="space-y-4 border-t border-white/10 pt-4">
                   <RPGStatusBar label="gpa" value={stats.gpa} colorClass="from-amber-500 to-yellow-400" icon={<GraduationCap className="h-4.5 w-4.5 text-amber-400" />} title="GPA HỌC LỰC" displayValue={formatGPAScore(stats.gpa)} />
                   <RPGStatusBar label="stress" value={stats.stress} colorClass="from-rose-600 to-red-500" icon={<AlertTriangle className="h-4.5 w-4.5 text-rose-400" />} title="STRESS ÁP LỰC" displayValue={`${stats.stress}%`} pulse={stats.stress >= 80} />
-                  <RPGStatusBar label="energy" value={stats.energy} colorClass="from-emerald-500 to-green-400" icon={<Battery className="h-4.5 w-4.5 text-emerald-400" />} title="PIN NĂNG LƯỢNG" displayValue={`${stats.energy}%`} pulse={stats.energy <= 20} />
+                  <RPGStatusBar label="energy" value={stats.energy} colorClass="from-emerald-500 to-green-400" icon={<Battery className="h-4.5 w-4.5 text-emerald-400" />} title="NĂNG LƯỢNG" displayValue={`${stats.energy}%`} pulse={stats.energy <= 20} />
                   <RPGStatusBar label="money" value={stats.money} colorClass="from-yellow-500 to-amber-400" icon={<Coins className="h-4.5 w-4.5 text-yellow-400" />} title="TIỀN BẠC VNĐ" displayValue={`${stats.money} VNĐ`} pulse={stats.money <= 15} />
                   <RPGStatusBar label="happiness" value={stats.happiness} colorClass="from-cyan-500 to-blue-400" icon={<Smile className="h-4.5 w-4.5 text-cyan-400" />} title="NIỀM VUI VẺ" displayValue={`${stats.happiness}%`} />
                 </div>
