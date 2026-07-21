@@ -1,0 +1,6 @@
+{
+  "name": "Freshman Survival",
+  "description": "Game mô phỏng sinh tồn sinh viên đại học với giao diện bento tối giản, thích hợp cho cả PC và di động, tích hợp hệ thống thời tiết biến chuyển và cúp thành tựu độc đáo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
