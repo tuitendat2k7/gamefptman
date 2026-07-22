@@ -204,7 +204,17 @@ export default function App() {
     }
   };
   useEffect(() => { gameAudio.enabled = soundEnabled; }, [soundEnabled]);
-  
+  // --- TÍNH NĂNG AUTO-SAVE: Tự động đồng bộ lên Database ---
+  useEffect(() => {
+    // Chỉ lưu khi người chơi đang ở trong màn hình game chính
+    if (currentUser && (phase === "GAMEPLAY" || phase === "DAILY_FEEDBACK" || phase === "EVENT" || phase === "START")) {
+      const timer = setTimeout(() => {
+        syncToDatabase(unlockedAchievements, stats, currentDay);
+      }, 1000); // Đợi 1s sau khi các hiệu ứng chạy xong mới lưu để tránh lag
+      return () => clearTimeout(timer);
+    }
+  }, [stats, currentDay, unlockedAchievements, currentUser, phase]);
+  // --------------------------------------------------------
   
 
   const loadLeaderboard = async () => {
@@ -238,11 +248,11 @@ export default function App() {
       setCurrentUser(data as UserProfile); 
       setPlayerName(data.fullName); 
       
-      // --- NHẬN DỮ LIỆU TỪ DATABASE VÀ NẠP VÀO GAME ---
-      if (data.achievements) setUnlockedAchievements(data.achievements);
+      // --- NẠP DỮ LIỆU TỪ DATABASE VÀO GAME ---
+      if (data.achievements && data.achievements.length > 0) setUnlockedAchievements(data.achievements);
       if (data.stats) setStats(data.stats);
       if (data.currentDay) setCurrentDay(data.currentDay);
-      // ------------------------------------------------
+      // ----------------------------------------
 
       setPhase("START"); 
       gameAudio.playSelect();
