@@ -295,7 +295,15 @@ export default function App() {
     else setStats({ gpa: 80, stress: 25, energy: 95, money: 55, happiness: 90 });
   };
 
-  const handleStartGame = () => { gameAudio.playSelect(); setPhase("INTRO"); };
+  const handleStartGame = () => { 
+    gameAudio.playSelect(); 
+    // Nếu ngày hiện tại lớn hơn 1 (đã có file save), vào thẳng GamePlay
+    if (currentDay > 1) {
+      setPhase("GAMEPLAY");
+    } else {
+      setPhase("INTRO"); // Chưa chơi thì mới vào tạo nhân vật
+    }
+  };
   const unlockAchievement = (id: string) => {
     if (!unlockedAchievements.includes(id) && currentUser) {
       const updated = [...unlockedAchievements, id]; 
