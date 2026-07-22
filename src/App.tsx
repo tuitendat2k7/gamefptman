@@ -106,10 +106,10 @@ const RPGStatusBar: React.FC<any> = ({ label, value, max = 100, colorClass, icon
   return (
     <div className={`space-y-1.5 ${pulse ? "animate-pulse" : ""}`}>
       <div className="flex items-center justify-between text-xs md:text-sm font-black">
-        <div className="flex items-center gap-2 text-stone-300"><span className="scale-110 opacity-90">{icon}</span><span>{title}</span></div>
-        <div className={`flex items-center gap-2 transition-colors ${pulse ? "text-red-400 animate-bounce" : "text-stone-300"}`}><span className="scale-110 opacity-90">{icon}</span><span>{title}</span></div>
-        <span className="font-mono text-stone-50 font-black">{displayValue}</span>
-      
+        <div className={`flex items-center gap-2 transition-colors ${pulse ? "text-red-400 animate-bounce" : "text-stone-300"}`}>
+          <span className="scale-110 opacity-90">{icon}</span>
+          <span>{title}</span>
+        </div>
         <span className="font-mono text-stone-50 font-black">{displayValue}</span>
       </div>
       <div className="h-4.5 w-full bg-black/60 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
@@ -475,12 +475,7 @@ export default function App() {
                 </button>
               </div>
             )}
-            {phase === "GAMEPLAY" && (
-              <button onClick={() => { gameAudio.playTap(); setShowHistoryModal(true); }} className="px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 transition-all text-xs font-bold text-stone-200 flex items-center gap-1.5 cursor-pointer select-none">
-                <FileText className="h-3.5 w-3.5" />
-                <span>Nhật ký ({history.length})</span>
-              </button>
-            )}
+            
             {phase === "GAMEPLAY" && (
               <button onClick={() => { gameAudio.playTap(); setShowHistoryModal(true); }} className="px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 transition-all text-xs font-bold text-stone-200 flex items-center gap-1.5 cursor-pointer select-none">
                 <FileText className="h-3.5 w-3.5" />
@@ -488,6 +483,15 @@ export default function App() {
               </button>
             )}
             
+            {/* WIDGET LIVE SCORE THÊM MỚI Ở ĐÂY */}
+            {phase === "GAMEPLAY" && (
+              <div className="flex items-center bg-black/40 border border-white/10 px-4 py-1.5 rounded-full shadow-inner backdrop-blur-md transition-all">
+                <span className="text-[10px] font-black text-zinc-400 mr-2 uppercase tracking-widest drop-shadow-sm hidden md:inline">Score</span>
+                <span className="text-sm font-black text-amber-400 font-mono drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]">
+                  {currentScore.toLocaleString('vi-VN')}
+                </span>
+              </div>
+            )}
             {/* WIDGET LIVE SCORE THÊM MỚI Ở ĐÂY */}
             {phase === "GAMEPLAY" && (
               <div className="flex items-center bg-black/40 border border-white/10 px-4 py-1.5 rounded-full shadow-inner backdrop-blur-md transition-all">
