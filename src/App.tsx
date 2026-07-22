@@ -184,16 +184,28 @@ export default function App() {
   const [slotLog, setSlotLog] = useState<any[]>([]);
 
   const SEMESTER_DAYS = 14;
-
+  // Hàm đẩy dữ liệu lên Node.js Backend
+  const syncToDatabase = async (updatedAchievements: string[], currentStats: PlayerStats, day: number) => {
+    if (!currentUser) return;
+    try {
+      await fetch('/api/save-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: currentUser.username,
+          studentId: currentUser.studentId,
+          achievements: updatedAchievements, // Mảng các ID cúp
+          stats: currentStats,               // Chỉ số hiện tại
+          currentDay: day                    // Ngày đang chơi
+        })
+      });
+    } catch (err) {
+      console.error("Lỗi đồng bộ dữ liệu với máy chủ:", err);
+    }
+  };
   useEffect(() => { gameAudio.enabled = soundEnabled; }, [soundEnabled]);
   
-  useEffect(() => {
-    if (currentUser) {
-      const saved = localStorage.getItem(`achievements_${currentUser.username}`);
-      if (saved) { try { setUnlockedAchievements(JSON.parse(saved)); } catch (e) { } } 
-      else { setUnlockedAchievements([]); }
-    } else { setUnlockedAchievements([]); }
-  }, [currentUser]);
+  
 
   const loadLeaderboard = async () => {
     try {
@@ -222,7 +234,18 @@ export default function App() {
       const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: formData.username, password: formData.password }) });
       const data = await res.json();
       if (!res.ok) return alert(data.error);
-      setCurrentUser(data as UserProfile); setPlayerName(data.fullName); setPhase("START"); gameAudio.playSelect();
+      
+      setCurrentUser(data as UserProfile); 
+      setPlayerName(data.fullName); 
+      
+      // --- NHẬN DỮ LIỆU TỪ DATABASE VÀ NẠP VÀO GAME ---
+      if (data.achievements) setUnlockedAchievements(data.achievements);
+      if (data.stats) setStats(data.stats);
+      if (data.currentDay) setCurrentDay(data.currentDay);
+      // ------------------------------------------------
+
+      setPhase("START"); 
+      gameAudio.playSelect();
     } catch (err) { alert("Lỗi kết nối tới Server Database!"); } finally { setIsLoading(false); }
   };
 
@@ -265,8 +288,15 @@ export default function App() {
   const handleStartGame = () => { gameAudio.playSelect(); setPhase("INTRO"); };
   const unlockAchievement = (id: string) => {
     if (!unlockedAchievements.includes(id) && currentUser) {
-      const updated = [...unlockedAchievements, id]; setUnlockedAchievements(updated); localStorage.setItem(`achievements_${currentUser.username}`, JSON.stringify(updated));
-      setUnlockedNotice(ACHIEVEMENTS.find(a => a.id === id)?.title || ""); gameAudio.playPositive(); setTimeout(() => setUnlockedNotice(""), 4000);
+      const updated = [...unlockedAchievements, id]; 
+      setUnlockedAchievements(updated); 
+      
+      // GỌI HÀM ĐỒNG BỘ THAY CHO LOCALSTORAGE
+      syncToDatabase(updated, stats, currentDay);
+
+      setUnlockedNotice(ACHIEVEMENTS.find(a => a.id === id)?.title || ""); 
+      gameAudio.playPositive(); 
+      setTimeout(() => setUnlockedNotice(""), 4000);
     }
   };
 
@@ -378,7 +408,7 @@ export default function App() {
     const eventImpact = choiceFeedback ? choiceFeedback.statsImpact : {};
     const { finalImpact, ancestralDodged } = calculateFinalImpact("event", {}, eventImpact);
     const daySummary = slotLog.map(l => l.activityName.split(": ")[1] || l.activityName).join(" ➔ ");
-
+    
     const newLog: GameHistoryEntry = { day: currentDay, activityName: daySummary, eventTitle: ancestralDodged ? `[ĐÃ NÉ] ${activeEvent.title}` : activeEvent.title, choiceMade: choiceFeedback ? "Đã lướt qua" : undefined, statsImpact: finalImpact };
     setHistory([newLog, ...history]);
     const draftStats = { ...stats }; const statKeys = ["gpa", "stress", "energy", "money", "happiness"] as const;
@@ -387,7 +417,7 @@ export default function App() {
 
     const isGameOver = evaluateEndDayStats(draftStats, finalImpact);
     setActiveEvent(null); setChoiceFeedback(null); setSelectedActivity(null); setSlotLog([]); setCurrentSlot("morning");
-
+    syncToDatabase(unlockedAchievements, draftStats, currentDay)
     if (!isGameOver) {
       unlockAchievement("first_day");
       if (currentDay >= SEMESTER_DAYS) { unlockAchievement("survivor"); if (draftStats.stress <= 10) unlockAchievement("zen_master"); await handleEndSemester(); gameAudio.playPositive(); setPhase("SUMMARY"); }

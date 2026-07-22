@@ -52,7 +52,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. API Đăng Nhập
+// 2. API Đăng Nhập (ĐÃ NÂNG CẤP ĐỂ TẢI TIẾN TRÌNH GAME)
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -66,12 +66,19 @@ app.post('/api/login', async (req, res) => {
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) return res.status(400).json({ error: 'Sai tên đăng nhập hoặc mật khẩu!' });
         
-        // Trả về thông tin an toàn (không kèm password)
+        // Parse JSON cho an toàn nếu mysql2 trả về chuỗi thay vì object
+        const achievements = typeof user.achievements === 'string' ? JSON.parse(user.achievements) : (user.achievements || []);
+        const stats = typeof user.stats === 'string' ? JSON.parse(user.stats) : user.stats;
+
+        // Trả về thông tin an toàn (không kèm password) + Kèm theo dữ liệu sinh tồn
         res.json({
             username: user.username,
             fullName: user.full_name,
             studentId: user.student_id,
-            avatar: user.avatar
+            avatar: user.avatar,
+            achievements: achievements,
+            stats: stats,
+            currentDay: user.current_day
         });
     } catch (error) {
         console.error(error);
@@ -97,13 +104,31 @@ app.post('/api/submit-score', async (req, res) => {
 // 4. API Lấy Danh Sách Bảng Xếp Hạng (Top 10)
 app.get('/api/leaderboard', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM leaderboard ORDER BY score DESC LIMIT 10');
+        const [rows] = await pool.query('SELECT * FROM leaderboard ORDER BY score DESC');
         res.json(rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Lỗi server khi tải BXH!' });
     }
 });
+
+// 5. API LƯU TIẾN TRÌNH GAME (THÊM MỚI)
+app.post('/api/save-progress', async (req, res) => {
+    try {
+        const { username, achievements, stats, currentDay } = req.body;
+        
+        await pool.query(
+            "UPDATE users SET achievements = ?, stats = ?, current_day = ? WHERE username = ?",
+            [JSON.stringify(achievements), JSON.stringify(stats), currentDay, username]
+        );
+        
+        res.status(200).json({ message: 'Đã đồng bộ tiến trình thành công!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi server khi lưu tiến trình!' });
+    }
+});
+
 
 // ==========================================
 // PHỤC VỤ STATIC FILES TỪ BẢN BUILD CỦA REACT
