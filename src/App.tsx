@@ -492,16 +492,7 @@ export default function App() {
                 </span>
               </div>
             )}
-            {/* WIDGET LIVE SCORE THÊM MỚI Ở ĐÂY */}
-            {phase === "GAMEPLAY" && (
-              <div className="flex items-center bg-black/40 border border-white/10 px-4 py-1.5 rounded-full shadow-inner backdrop-blur-md transition-all">
-                <span className="text-[10px] font-black text-zinc-400 mr-2 uppercase tracking-widest drop-shadow-sm hidden md:inline">Score</span>
-                <span className="text-sm font-black text-amber-400 font-mono drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]">
-                  {currentScore.toLocaleString('vi-VN')}
-                </span>
-              </div>
-            )}
-
+            
             
             {/* Nút Bảng xếp hạng hiển thị khi đã đăng nhập */}
             {currentUser && phase !== "AUTH" && phase !== "LEADERBOARD" && (
@@ -645,11 +636,13 @@ export default function App() {
                     <p className="text-sm text-zinc-300">Top sinh viên có thành tích xuất sắc nhất sau 14 ngày</p>
                   </div>
 
-                  <div className="space-y-3 mt-6">
+                  {/* Đã thêm max-h-[50vh] và overflow-y-auto để cuộn, pr-2 để hở viền cho thanh cuộn */}
+                  <div className="space-y-3 mt-6 max-h-[50vh] overflow-y-auto pr-2">
                     {leaderboard.length === 0 ? (
                       <p className="text-center text-zinc-400 py-10">Chưa có ai hoàn thành học kỳ. Hãy là người đầu tiên!</p>
                     ) : (
-                      leaderboard.slice(0, 10).map((entry, index) => (
+                      /* Đã bỏ .slice(0, 10) để hiển thị toàn bộ danh sách */
+                      leaderboard.map((entry, index) => (
                         <div key={index} className={`flex items-center justify-between p-4 rounded-2xl border backdrop-blur-md ${index === 0 ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.15)]' : index === 1 ? 'bg-zinc-300/20 border-zinc-300/50' : index === 2 ? 'bg-orange-700/20 border-orange-700/50' : 'bg-black/40 border-white/10'}`}>
                           <div className="flex items-center gap-4">
                             <div className={`text-xl font-black ${index === 0 ? 'text-amber-400 drop-shadow-sm' : index === 1 ? 'text-zinc-200' : index === 2 ? 'text-orange-500' : 'text-zinc-400'}`}>#{index + 1}</div>
