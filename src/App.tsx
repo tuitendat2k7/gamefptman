@@ -107,6 +107,9 @@ const RPGStatusBar: React.FC<any> = ({ label, value, max = 100, colorClass, icon
     <div className={`space-y-1.5 ${pulse ? "animate-pulse" : ""}`}>
       <div className="flex items-center justify-between text-xs md:text-sm font-black">
         <div className="flex items-center gap-2 text-stone-300"><span className="scale-110 opacity-90">{icon}</span><span>{title}</span></div>
+        <div className={`flex items-center gap-2 transition-colors ${pulse ? "text-red-400 animate-bounce" : "text-stone-300"}`}><span className="scale-110 opacity-90">{icon}</span><span>{title}</span></div>
+        <span className="font-mono text-stone-50 font-black">{displayValue}</span>
+      
         <span className="font-mono text-stone-50 font-black">{displayValue}</span>
       </div>
       <div className="h-4.5 w-full bg-black/60 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
@@ -427,10 +430,14 @@ export default function App() {
   const dowInfo = getDayOfWeek(currentDay);
   const slotSchedule = getSlotSchedule(currentDay, currentSlot);
   const badge = getStudentBadge();
+  const currentScore = Math.floor((stats.gpa * 1000) + (stats.money * 10) + (stats.happiness * 20) - (stats.stress * 5));
+  const isHighStress = stats.stress >= 80;
+  const isLowEnergy = stats.energy <= 15;
+  const isDanger = isHighStress || isLowEnergy;
 
   return (
     <div className="min-h-screen text-stone-100 font-sans selection:bg-amber-500 selection:text-black flex flex-col justify-between relative overflow-hidden">
-      
+        <div className={`pointer-events-none fixed inset-0 z-50 transition-all duration-1000 ${isDanger ? 'opacity-100 bg-red-950/20 shadow-[inset_0_0_150px_rgba(220,38,38,0.3)] animate-pulse' : 'opacity-0'}`} />
       {/* Dynamic Sky Background Component */}
       <SkyBackground slot={currentSlot} phase={phase} />
 
@@ -474,6 +481,24 @@ export default function App() {
                 <span>Nhật ký ({history.length})</span>
               </button>
             )}
+            {phase === "GAMEPLAY" && (
+              <button onClick={() => { gameAudio.playTap(); setShowHistoryModal(true); }} className="px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 transition-all text-xs font-bold text-stone-200 flex items-center gap-1.5 cursor-pointer select-none">
+                <FileText className="h-3.5 w-3.5" />
+                <span>Nhật ký ({history.length})</span>
+              </button>
+            )}
+            
+            {/* WIDGET LIVE SCORE THÊM MỚI Ở ĐÂY */}
+            {phase === "GAMEPLAY" && (
+              <div className="flex items-center bg-black/40 border border-white/10 px-4 py-1.5 rounded-full shadow-inner backdrop-blur-md transition-all">
+                <span className="text-[10px] font-black text-zinc-400 mr-2 uppercase tracking-widest drop-shadow-sm hidden md:inline">Score</span>
+                <span className="text-sm font-black text-amber-400 font-mono drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]">
+                  {currentScore.toLocaleString('vi-VN')}
+                </span>
+              </div>
+            )}
+
+            
             {/* Nút Bảng xếp hạng hiển thị khi đã đăng nhập */}
             {currentUser && phase !== "AUTH" && phase !== "LEADERBOARD" && (
               <button 
