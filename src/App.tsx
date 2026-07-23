@@ -449,16 +449,15 @@ export default function App() {
   const handleSelectEventOption = (option: ChoiceOption) => {
     if (option.outcome.gpa >= 0 && option.outcome.happiness >= 0) gameAudio.playPositive(); else gameAudio.playNegative();
     
-    // Tách riêng textFeedback ra khỏi các chỉ số (gpa, stress...) để nó không bị render thành 1 ô màu
     const { textFeedback, ...restImpact } = option.outcome;
     const impact = { ...restImpact } as Record<string, number>;
     
-    // Trừ 10đ tiền ăn
     impact.money = (impact.money || 0) - 10;
     const textWithFood = textFeedback + " (💸 Đã tiêu 10 VNĐ tiền ăn/sinh hoạt phí hôm nay).";
     
     setChoiceFeedback({ text: textWithFood, statsImpact: impact });
   };
+
   const handleConfirmFeedback = async () => {
     gameAudio.playTap(); if (!activeEvent) return;
     const eventImpact = choiceFeedback ? choiceFeedback.statsImpact : {};
@@ -868,18 +867,18 @@ export default function App() {
                             whileTap={{ scale: 0.97 }} 
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             onClick={() => handlePerformSlotActivity("lecture", "Học Chính Khóa", { gpa: 7, stress: 8, energy: -12, money: 0, happiness: -2 })} 
-                            className="relative text-left p-5 rounded-2xl bg-[#0a0a0a] border border-white/5 hover:border-amber-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] overflow-hidden"
+                            className="relative text-left p-5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] hover:border-amber-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] overflow-hidden"
                           >
                             <div className="relative flex items-start gap-3.5">
                               <div className="h-12 w-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-150 shrink-0">
                                 <GraduationCap className="h-6 w-6" />
                               </div>
-                              <div className="pt-0.5">
+                              <div className="pt-0.5 w-full">
                                 <h5 className="text-sm font-black text-stone-100 uppercase tracking-wide group-hover:text-amber-400 transition-colors duration-150">Lên Lớp Học</h5>
                                 <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 uppercase font-mono font-black mt-1.5 inline-block">Bắt buộc</span>
                               </div>
                             </div>
-                            <div className="relative flex flex-wrap gap-2 mt-4">
+                            <div className="relative flex flex-wrap justify-center gap-2 mt-4 w-full">
                               <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" title="Tăng GPA">
                                 <GraduationCap className="h-3.5 w-3.5" /><span className="text-[11px] font-black font-mono">+7</span>
                               </div>
@@ -898,18 +897,18 @@ export default function App() {
                             whileTap={{ scale: 0.97 }} 
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             onClick={() => handlePerformSlotActivity("parttime", "Làm Thêm (Cúp học)", { gpa: -12, stress: 10, energy: -12, money: 15, happiness: -3 }, true)} 
-                            className="relative text-left p-5 rounded-2xl bg-[#0a0a0a] border border-white/5 hover:border-yellow-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(234,179,8,0.15)] overflow-hidden"
+                            className="relative text-left p-5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] hover:border-yellow-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(234,179,8,0.15)] overflow-hidden"
                           >
                             <div className="relative flex items-start gap-3.5">
                               <div className="h-12 w-12 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400 group-hover:scale-110 group-hover:bg-yellow-500/20 transition-all duration-150 shrink-0">
                                 <Coins className="h-6 w-6" />
                               </div>
-                              <div className="pt-0.5">
+                              <div className="pt-0.5 w-full">
                                 <h5 className="text-sm font-black text-stone-100 uppercase tracking-wide group-hover:text-yellow-400 transition-colors duration-150">Cúp Làm Thêm</h5>
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-rose-400 uppercase font-mono font-black mt-1.5 inline-block border border-rose-500/30">Cúp học</span>
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800/80 text-rose-400 uppercase font-mono font-black mt-1.5 inline-block border border-rose-500/30">Cúp học</span>
                               </div>
                             </div>
-                            <div className="relative flex flex-wrap gap-2 mt-4">
+                            <div className="relative flex flex-wrap justify-center gap-2 mt-4 w-full">
                               <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" title="Tăng VNĐ">
                                 <Coins className="h-3.5 w-3.5" /><span className="text-[11px] font-black font-mono">+15</span>
                               </div>
@@ -928,18 +927,18 @@ export default function App() {
                             whileTap={{ scale: 0.97 }} 
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             onClick={() => handlePerformSlotActivity("rest", "Ngủ Nướng (Cúp học)", { gpa: -15, stress: -10, energy: 20, money: 0, happiness: 8 }, true)} 
-                            className="relative text-left p-5 rounded-2xl bg-[#0a0a0a] border border-white/5 hover:border-indigo-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(99,102,241,0.15)] overflow-hidden"
+                            className="relative text-left p-5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] hover:border-indigo-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(99,102,241,0.15)] overflow-hidden"
                           >
                             <div className="relative flex items-start gap-3.5">
                               <div className="h-12 w-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-150 shrink-0">
                                 <Moon className="h-6 w-6" />
                               </div>
-                              <div className="pt-0.5">
+                              <div className="pt-0.5 w-full">
                                 <h5 className="text-sm font-black text-stone-100 uppercase tracking-wide group-hover:text-indigo-400 transition-colors duration-150">Cúp Ngủ Nướng</h5>
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-rose-400 uppercase font-mono font-black mt-1.5 inline-block border border-rose-500/30">Cúp học</span>
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800/80 text-rose-400 uppercase font-mono font-black mt-1.5 inline-block border border-rose-500/30">Cúp học</span>
                               </div>
                             </div>
-                            <div className="relative flex flex-wrap gap-2 mt-4">
+                            <div className="relative flex flex-wrap justify-center gap-2 mt-4 w-full">
                               <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" title="Tăng Năng Lượng">
                                 <Battery className="h-3.5 w-3.5" /><span className="text-[11px] font-black font-mono">+20</span>
                               </div>
@@ -967,7 +966,7 @@ export default function App() {
                               whileTap={{ scale: 0.95 }} 
                               transition={{ type: "spring", stiffness: 400, damping: 25 }}
                               onClick={() => handlePerformSlotActivity(act.id, act.name, act.base)} 
-                              className={`relative text-center p-4 rounded-2xl bg-[#0a0a0a] border border-white/5 ${act.hoverBorder} transition-colors duration-150 cursor-pointer flex flex-col items-center justify-between min-h-[170px] md:h-48 group shadow-lg ${act.hoverShadow} overflow-hidden`}
+                              className={`relative text-center p-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] ${act.hoverBorder} transition-colors duration-150 cursor-pointer flex flex-col items-center justify-between min-h-[170px] md:h-48 group shadow-lg ${act.hoverShadow} overflow-hidden`}
                             >
                               <div className="relative flex flex-col items-center w-full">
                                 <div className={`h-12 w-12 rounded-xl flex items-center justify-center text-lg ${act.col} ${act.iconBg} group-hover:scale-110 transition-transform duration-150 shrink-0`}>
