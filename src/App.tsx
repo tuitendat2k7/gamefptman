@@ -284,6 +284,11 @@ export default function App() {
       if (data.achievements && data.achievements.length > 0) setUnlockedAchievements(data.achievements);
       if (data.stats) setStats(data.stats);
       if (data.currentDay) setCurrentDay(data.currentDay);
+      
+      // Khởi tạo lại một ngày mới sạch sẽ cho tài khoản này
+      setCurrentSlot("morning");
+      setSlotLog([]);
+      setHistory([]);
       // ----------------------------------------
 
       setPhase("START"); 
@@ -437,6 +442,42 @@ export default function App() {
     else if (roll < 0.24 && actOutcomes) { isCritical = "disaster"; outcomeDetail = actOutcomes.criticalDisaster; gameAudio.playNegative(); }
     else if (actOutcomes && actOutcomes.normalDays && actOutcomes.normalDays.length > 0) outcomeDetail = actOutcomes.normalDays[Math.floor(Math.random() * actOutcomes.normalDays.length)];
 
+    let criticalImpact: Record<string, number> = { ...outcomeDetail.statsImpact }; 
+    let ancestralDodged = false;
+    
+    if (isCritical !== "none") {
+      const calc = calculateFinalImpact(rollActId, {}, outcomeDetail.statsImpact); 
+      criticalImpact = calc.finalImpact; 
+      ancestralDodged = calc.ancestralDodged || false;
+      // Đã xóa hàm setStats cũ ở đây để tránh lỗi nhân đôi chỉ số
+    }
+
+    // --- HỆ THỐNG TRỪ TIỀN ĂN MỖI NGÀY ---
+    const DAILY_FOOD_COST = -10; // Trừ 10 VNĐ tiền sinh hoạt phí
+    criticalImpact.money = (criticalImpact.money || 0) + DAILY_FOOD_COST;
+    const textWithFood = outcomeDetail.text + " (💸 Đã tiêu 10 VNĐ tiền ăn/sinh hoạt phí hôm nay).";
+    // ------------------------------------
+
+    setDailyFeedback({ activityId: rollActId, activityName: completedSlotLog.map(l => l.activityName.split(": ")[1] || l.activityName).join(" ➔ "), isCritical, title: outcomeDetail.title, text: textWithFood, statsImpact: criticalImpact, ancestralDodged });
+    
+    if (matchingEvent) { setActiveEvent(matchingEvent); setPhase("EVENT"); } else setPhase("DAILY_FEEDBACK");
+  };
+
+    const actsPlayedIds = completedSlotLog.map(l => {
+      const name = l.activityName.toLowerCase();
+      if (name.includes("thư viện")) return "library"; if (name.includes("làm thêm")) return "parttime"; if (name.includes("câu lạc bộ")) return "club"; if (name.includes("nhậu")) return "party"; if (name.includes("ngủ")) return "rest"; return "lecture";
+    });
+    const rollActId = actsPlayedIds[Math.floor(Math.random() * actsPlayedIds.length)] || "lecture";
+    const actOutcomes = DAILY_OUTCOMES[rollActId];
+    const roll = Math.random();
+
+    let isCritical: "success" | "disaster" | "none" = "none";
+    let outcomeDetail: OutcomeDetail = { title: "Nhật Ký Ngày Bình Yên", text: "Bạn vừa kết thúc một ngày sinh viên cực kỳ bận rộn. Mệt nhoài nhưng thật xứng đáng vì đã quản lý thời gian khoa học!", statsImpact: {} };
+
+    if (roll < 0.12 && actOutcomes) { isCritical = "success"; outcomeDetail = actOutcomes.criticalSuccess; gameAudio.playPositive(); }
+    else if (roll < 0.24 && actOutcomes) { isCritical = "disaster"; outcomeDetail = actOutcomes.criticalDisaster; gameAudio.playNegative(); }
+    else if (actOutcomes && actOutcomes.normalDays && actOutcomes.normalDays.length > 0) outcomeDetail = actOutcomes.normalDays[Math.floor(Math.random() * actOutcomes.normalDays.length)];
+
     let criticalImpact: Record<string, number> = {}; let ancestralDodged = false;
     if (isCritical !== "none") {
       const calc = calculateFinalImpact(rollActId, {}, outcomeDetail.statsImpact); criticalImpact = calc.finalImpact; ancestralDodged = calc.ancestralDodged || false;
@@ -450,9 +491,14 @@ export default function App() {
 
   const handleSelectEventOption = (option: ChoiceOption) => {
     if (option.outcome.gpa >= 0 && option.outcome.happiness >= 0) gameAudio.playPositive(); else gameAudio.playNegative();
-    setChoiceFeedback({ text: option.outcome.textFeedback, statsImpact: option.outcome.gpa !== undefined ? option.outcome : {} as any });
+    
+    // --- HỆ THỐNG TRỪ TIỀN ĂN KHI GẶP BIẾN CỐ ---
+    const impact = { ...option.outcome } as Record<string, number>;
+    impact.money = (impact.money || 0) - 10;
+    const textWithFood = option.outcome.textFeedback + " (💸 Đã tiêu 10 VNĐ tiền ăn/sinh hoạt phí hôm nay).";
+    
+    setChoiceFeedback({ text: textWithFood, statsImpact: impact });
   };
-
   const handleConfirmFeedback = async () => {
     gameAudio.playTap(); if (!activeEvent) return;
     const eventImpact = choiceFeedback ? choiceFeedback.statsImpact : {};
@@ -461,16 +507,15 @@ export default function App() {
     
     const newLog: GameHistoryEntry = { day: currentDay, activityName: daySummary, eventTitle: ancestralDodged ? `[ĐÃ NÉ] ${activeEvent.title}` : activeEvent.title, choiceMade: choiceFeedback ? "Đã lướt qua" : undefined, statsImpact: finalImpact };
     setHistory([newLog, ...history]);
-    const draftStats = { ...stats }; const statKeys = ["gpa", "stress", "energy", "money", "happiness"] as const;
-    statKeys.forEach(k => { draftStats[k] = updateStatWithLimits(draftStats[k], finalImpact[k] || 0); });
-    setStats(draftStats);
-
-    const isGameOver = evaluateEndDayStats(draftStats, finalImpact);
+    
+    // Đã xóa hàm setStats thừa để sửa triệt để lỗi double-apply khi kết thúc Event
+    const isGameOver = evaluateEndDayStats(stats, finalImpact); 
+    
     setActiveEvent(null); setChoiceFeedback(null); setSelectedActivity(null); setSlotLog([]); setCurrentSlot("morning");
-    syncToDatabase(unlockedAchievements, draftStats, currentDay)
+    
     if (!isGameOver) {
       unlockAchievement("first_day");
-      if (currentDay >= SEMESTER_DAYS) { unlockAchievement("survivor"); if (draftStats.stress <= 10) unlockAchievement("zen_master"); await handleEndSemester(); gameAudio.playPositive(); setPhase("SUMMARY"); }
+      if (currentDay >= SEMESTER_DAYS) { unlockAchievement("survivor"); if (stats.stress <= 10) unlockAchievement("zen_master"); await handleEndSemester(); gameAudio.playPositive(); setPhase("SUMMARY"); }
       else { setCurrentDay(currentDay + 1); setCurrentWeather(WEATHERS[Math.floor(Math.random() * WEATHERS.length)]); setPhase("GAMEPLAY"); }
     }
   };
@@ -550,7 +595,18 @@ export default function App() {
               <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-inner">
                 <span className="text-lg">{currentUser.avatar}</span>
                 <span className="text-xs font-bold text-stone-200 hidden md:block">{currentUser.studentId}</span>
-                <button onClick={() => { setCurrentUser(null); setPhase("AUTH"); }} className="ml-2 text-rose-400 hover:text-rose-300 transition-colors">
+                <button onClick={() => { 
+                  gameAudio.playTap();
+                  setCurrentUser(null); 
+                  setPhase("AUTH"); 
+                  // --- DỌN SẠCH RÁC BỘ NHỚ CỦA TÀI KHOẢN CŨ ---
+                  setCurrentSlot("morning");
+                  setSlotLog([]);
+                  setHistory([]);
+                  setDailyFeedback(null);
+                  setActiveEvent(null);
+                  setChoiceFeedback(null);
+                }} className="ml-2 text-rose-400 hover:text-rose-300 transition-colors">
                   <LogOut className="h-4 w-4" />
                 </button>
               </div>
