@@ -867,7 +867,7 @@ export default function App() {
                             whileTap={{ scale: 0.97 }} 
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             onClick={() => handlePerformSlotActivity("lecture", "Học Chính Khóa", { gpa: 7, stress: 8, energy: -12, money: 0, happiness: -2 })} 
-                            className="relative text-left p-5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] hover:border-amber-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] overflow-hidden"
+                            className="relative text-left p-5 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/10 hover:bg-white/[0.08] hover:border-amber-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] overflow-hidden"
                           >
                             <div className="relative flex items-start gap-3.5">
                               <div className="h-12 w-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-150 shrink-0">
@@ -897,7 +897,7 @@ export default function App() {
                             whileTap={{ scale: 0.97 }} 
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             onClick={() => handlePerformSlotActivity("parttime", "Làm Thêm (Cúp học)", { gpa: -12, stress: 10, energy: -12, money: 15, happiness: -3 }, true)} 
-                            className="relative text-left p-5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] hover:border-yellow-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(234,179,8,0.15)] overflow-hidden"
+                            className="relative text-left p-5 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/10 hover:bg-white/[0.08] hover:border-yellow-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(234,179,8,0.15)] overflow-hidden"
                           >
                             <div className="relative flex items-start gap-3.5">
                               <div className="h-12 w-12 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400 group-hover:scale-110 group-hover:bg-yellow-500/20 transition-all duration-150 shrink-0">
@@ -927,7 +927,7 @@ export default function App() {
                             whileTap={{ scale: 0.97 }} 
                             transition={{ type: "spring", stiffness: 400, damping: 25 }}
                             onClick={() => handlePerformSlotActivity("rest", "Ngủ Nướng (Cúp học)", { gpa: -15, stress: -10, energy: 20, money: 0, happiness: 8 }, true)} 
-                            className="relative text-left p-5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] hover:border-indigo-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(99,102,241,0.15)] overflow-hidden"
+                            className="relative text-left p-5 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/10 hover:bg-white/[0.08] hover:border-indigo-500/60 transition-colors duration-150 cursor-pointer flex flex-col justify-between group min-h-40 md:h-44 shadow-lg hover:shadow-[0_0_25px_rgba(99,102,241,0.15)] overflow-hidden"
                           >
                             <div className="relative flex items-start gap-3.5">
                               <div className="h-12 w-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/20 transition-all duration-150 shrink-0">
@@ -966,7 +966,7 @@ export default function App() {
                               whileTap={{ scale: 0.95 }} 
                               transition={{ type: "spring", stiffness: 400, damping: 25 }}
                               onClick={() => handlePerformSlotActivity(act.id, act.name, act.base)} 
-                              className={`relative text-center p-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 hover:bg-white/[0.04] ${act.hoverBorder} transition-colors duration-150 cursor-pointer flex flex-col items-center justify-between min-h-[170px] md:h-48 group shadow-lg ${act.hoverShadow} overflow-hidden`}
+                              className={`relative text-center p-4 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/10 hover:bg-white/[0.08] ${act.hoverBorder} transition-colors duration-150 cursor-pointer flex flex-col items-center justify-between min-h-[170px] md:h-48 group shadow-lg ${act.hoverShadow} overflow-hidden`}
                             >
                               <div className="relative flex flex-col items-center w-full">
                                 <div className={`h-12 w-12 rounded-xl flex items-center justify-center text-lg ${act.col} ${act.iconBg} group-hover:scale-110 transition-transform duration-150 shrink-0`}>
