@@ -9,7 +9,7 @@ import {
   GraduationCap, Battery, Coins, Smile, Moon, CupSoda, BookOpen,
   Users, AlertTriangle, Volume2, VolumeX, RotateCcw, FileText, Award,
   ArrowRight, Info, User, Zap, BookmarkCheck, CheckCircle2,
-  Trophy, LogOut, UserPlus, KeyRound, Hash
+  Trophy, LogOut, UserPlus, KeyRound, Hash, Store
 } from "lucide-react";
 
 import { PlayerStats, GameEvent, ChoiceOption, DailyActivity, GamePhase, GameHistoryEntry } from "./types";
@@ -175,6 +175,38 @@ export default function App() {
   const [choiceFeedback, setChoiceFeedback] = useState<any>(null);
   const [history, setHistory] = useState<GameHistoryEntry[]>([]);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  // --- STATE & DATA CHO TẠP HÓA ---
+  const [showShopModal, setShowShopModal] = useState(false);
+
+  const SHOP_ITEMS = [
+    { id: "mi_tom", name: "Mì Tôm Hảo Hảo", icon: "🍜", price: 5, description: "Cứu đói qua ngày, hơi mặn.", effect: { energy: 15, happiness: -5 } },
+    { id: "tra_sua", name: "Trà Sữa Full Topping", icon: "🧋", price: 25, description: "Nạp đường cấp tốc, vui vẻ cả ngày.", effect: { happiness: 20, stress: -15, energy: 5 } },
+    { id: "redbull", name: "Bò Húc Cày Đêm", icon: "🥫", price: 15, description: "Bừng tỉnh cơn buồn ngủ, nhưng tim đập nhanh.", effect: { energy: 30, stress: 10 } },
+    { id: "tai_lieu", name: "Tài Liệu Đề Thi Cũ", icon: "📚", price: 40, description: "Bí kíp học bá, điểm cao trong tầm tay.", effect: { gpa: 15, stress: 5 } },
+    { id: "bua_may_man", name: "Bùa Qua Môn", icon: "🧧", price: 50, description: "Tâm linh tương thông, mua sự tự tin.", effect: { stress: -30, happiness: 10, gpa: 5 } }
+  ];
+
+  const handleBuyItem = (item: any) => {
+    if (stats.money < item.price) {
+      alert("Không đủ VNĐ rồi bạn ơi! Ráng đi làm thêm nhé.");
+      gameAudio.playNegative();
+      return;
+    }
+
+    gameAudio.playPositive();
+    const draftStats = { ...stats };
+    draftStats.money -= item.price; // Trừ tiền
+    
+    // Cộng trừ chỉ số theo món hàng
+    const statKeys = ["gpa", "stress", "energy", "happiness"] as const;
+    statKeys.forEach(k => {
+      if (item.effect[k]) draftStats[k] = updateStatWithLimits(draftStats[k], item.effect[k]);
+    });
+    
+    setStats(draftStats);
+    // Nhờ có Auto-save ở phần trước, chỉ số sau khi mua sẽ tự động lưu lên Database!
+  };
+  // ---------------------------------
   const [showIntroTutorial, setShowIntroTutorial] = useState(true);
   const [deathCause, setDeathCause] = useState<string>("");
 
@@ -528,6 +560,12 @@ export default function App() {
               <button onClick={() => { gameAudio.playTap(); setShowHistoryModal(true); }} className="px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 transition-all text-xs font-bold text-stone-200 flex items-center gap-1.5 cursor-pointer select-none">
                 <FileText className="h-3.5 w-3.5" />
                 <span>Nhật ký ({history.length})</span>
+              </button>
+            )}
+            {phase === "GAMEPLAY" && (
+              <button onClick={() => { gameAudio.playTap(); setShowShopModal(true); }} className="px-3 py-1.5 rounded-xl bg-amber-500/20 backdrop-blur-md hover:bg-amber-500/40 border border-amber-500/50 transition-all text-xs font-bold text-amber-400 flex items-center gap-1.5 cursor-pointer select-none shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+                <Store className="h-3.5 w-3.5" />
+                <span>Tạp hóa</span>
               </button>
             )}
             
@@ -1033,9 +1071,58 @@ export default function App() {
       </main>
 
       <footer className="border-t border-white/10 bg-black/20 py-6 px-4 text-center text-xs text-zinc-400 font-mono select-none relative z-10 backdrop-blur-md">
-        <p>© 2026 Freshman Survival Applet — Designed Minimalist & Bento Styled</p>
+        <p>© 2026 Freshman Survival - Dự án game sinh tồn nhóm 2 môn SSA</p>
       </footer>
 
+      {/* SHOP MODAL */}
+      <AnimatePresence>
+        {showShopModal && (
+          <>
+            <motion.div key="shop_backdrop" initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} exit={{ opacity: 0 }} onClick={() => setShowShopModal(false)} className="fixed inset-0 bg-black/60 z-[90] backdrop-blur-md" />
+            <motion.div key="shop_panel" initial={{ opacity: 0, y: 30, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }} className="fixed inset-x-4 top-10 bottom-10 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[600px] md:h-[650px] bg-black/70 backdrop-blur-3xl border border-amber-500/30 rounded-3xl z-[100] flex flex-col p-6 md:p-8 shadow-[0_0_50px_rgba(245,158,11,0.2)] overflow-hidden">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/50 text-amber-400 shadow-inner">
+                    <Store className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-display font-black text-sm uppercase tracking-wider text-amber-400 drop-shadow-md">Tạp Hóa Sinh Viên</h4>
+                    <p className="text-[11px] text-zinc-300 font-bold">Số dư hiện tại: <span className="text-yellow-400 font-mono text-xs">{stats.money} VNĐ</span></p>
+                  </div>
+                </div>
+                <button onClick={() => setShowShopModal(false)} className="text-xs text-stone-200 hover:text-white bg-black/60 hover:bg-black/80 px-4 py-2 rounded-xl cursor-pointer transition font-bold border border-white/10 shadow-sm">Đóng cửa hàng</button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1 pb-4 scrollbar-none">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {SHOP_ITEMS.map((item, idx) => (
+                    <div key={idx} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-amber-500/30 transition-all flex flex-col justify-between shadow-inner">
+                      <div className="flex gap-3">
+                        <div className="text-3xl shrink-0 drop-shadow-md bg-black/40 h-12 w-12 rounded-xl flex items-center justify-center border border-white/5">{item.icon}</div>
+                        <div>
+                          <h5 className="text-sm font-black text-stone-100">{item.name}</h5>
+                          <p className="text-xs text-zinc-400 leading-snug mt-1 font-medium">{item.description}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-mono font-black mb-3">
+                        {Object.entries(item.effect).map(([k, v]) => {
+                          const numVal = v as number; const isPos = numVal > 0;
+                          return <span key={k} className={`px-2 py-0.5 rounded ${isPos ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"}`}>{k.toUpperCase()}: {isPos ? `+${numVal}` : numVal}</span>;
+                        })}
+                      </div>
+
+                      <button onClick={() => handleBuyItem(item)} className="w-full mt-auto py-2.5 rounded-xl bg-yellow-500/20 hover:bg-yellow-500/40 border border-yellow-500/50 text-yellow-400 font-black text-xs uppercase tracking-widest transition-all cursor-pointer shadow-sm active:scale-95 flex justify-center items-center gap-1.5">
+                        <Coins className="h-4 w-4" /> Mua ngay ({item.price} VNĐ)
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
       {/* HISTORY MODAL */}
       <AnimatePresence>
         {showHistoryModal && (
