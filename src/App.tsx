@@ -123,7 +123,6 @@ const RPGStatusBar: React.FC<any> = ({ label, value, max = 100, colorClass, icon
 const CharacterAvatar: React.FC<any> = ({ stats, major }) => {
   let face = "🧑‍🎓"; let moodName = "Ổn định"; let bubbleText = "Học kỳ năm nhất thật thú vị, cố gắng sống sót thôi!"; let characterAnimation = "animate-pulse";
   
-  // Nền kính mờ đen tiêu chuẩn cho mọi trạng thái
   let glowColor = "shadow-[0_0_30px_rgba(139,92,246,0.15)] border-violet-500/30 bg-black/40"; 
 
   if (stats.stress >= 80) { face = "🤯"; moodName = "Quá tải"; bubbleText = "Áp lực điên cuồng, đầu sắp bốc hỏa rồi! Phải đi xả hơi gấp!"; glowColor = "shadow-[0_0_30px_rgba(239,68,68,0.2)] border-red-500/30 bg-black/40"; characterAnimation = "animate-bounce"; }
@@ -174,39 +173,9 @@ export default function App() {
   const [activeEvent, setActiveEvent] = useState<GameEvent | null>(null);
   const [choiceFeedback, setChoiceFeedback] = useState<any>(null);
   const [history, setHistory] = useState<GameHistoryEntry[]>([]);
+  
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  // --- STATE & DATA CHO TẠP HÓA ---
   const [showShopModal, setShowShopModal] = useState(false);
-
-  const SHOP_ITEMS = [
-    { id: "mi_tom", name: "Mì Tôm Hảo Hảo", icon: "🍜", price: 5, description: "Cứu đói qua ngày, hơi mặn.", effect: { energy: 15, happiness: -5 } },
-    { id: "tra_sua", name: "Trà Sữa Full Topping", icon: "🧋", price: 25, description: "Nạp đường cấp tốc, vui vẻ cả ngày.", effect: { happiness: 20, stress: -15, energy: 5 } },
-    { id: "redbull", name: "Bò Húc Cày Đêm", icon: "🥫", price: 15, description: "Bừng tỉnh cơn buồn ngủ, nhưng tim đập nhanh.", effect: { energy: 30, stress: 10 } },
-    { id: "tai_lieu", name: "Tài Liệu Đề Thi Cũ", icon: "📚", price: 40, description: "Bí kíp học bá, điểm cao trong tầm tay.", effect: { gpa: 15, stress: 5 } },
-    { id: "bua_may_man", name: "Bùa Qua Môn", icon: "🧧", price: 50, description: "Tâm linh tương thông, mua sự tự tin.", effect: { stress: -30, happiness: 10, gpa: 5 } }
-  ];
-
-  const handleBuyItem = (item: any) => {
-    if (stats.money < item.price) {
-      alert("Không đủ VNĐ rồi bạn ơi! Ráng đi làm thêm nhé.");
-      gameAudio.playNegative();
-      return;
-    }
-
-    gameAudio.playPositive();
-    const draftStats = { ...stats };
-    draftStats.money -= item.price; // Trừ tiền
-    
-    // Cộng trừ chỉ số theo món hàng
-    const statKeys = ["gpa", "stress", "energy", "happiness"] as const;
-    statKeys.forEach(k => {
-      if (item.effect[k]) draftStats[k] = updateStatWithLimits(draftStats[k], item.effect[k]);
-    });
-    
-    setStats(draftStats);
-    // Nhờ có Auto-save ở phần trước, chỉ số sau khi mua sẽ tự động lưu lên Database!
-  };
-  // ---------------------------------
   const [showIntroTutorial, setShowIntroTutorial] = useState(true);
   const [deathCause, setDeathCause] = useState<string>("");
 
@@ -216,7 +185,15 @@ export default function App() {
   const [slotLog, setSlotLog] = useState<any[]>([]);
 
   const SEMESTER_DAYS = 14;
-  // Hàm đẩy dữ liệu lên Node.js Backend
+
+  const SHOP_ITEMS = [
+    { id: "mi_tom", name: "Mì Tôm Hảo Hảo", icon: "🍜", price: 5, description: "Cứu đói qua ngày, hơi mặn.", effect: { energy: 15, happiness: -5 } },
+    { id: "tra_sua", name: "Trà Sữa Full Topping", icon: "🧋", price: 25, description: "Nạp đường cấp tốc, vui vẻ cả ngày.", effect: { happiness: 20, stress: -15, energy: 5 } },
+    { id: "redbull", name: "Bò Húc Cày Đêm", icon: "🥫", price: 15, description: "Bừng tỉnh cơn buồn ngủ, nhưng tim đập nhanh.", effect: { energy: 30, stress: 10 } },
+    { id: "tai_lieu", name: "Tài Liệu Đề Thi Cũ", icon: "📚", price: 40, description: "Bí kíp học bá, điểm cao trong tầm tay.", effect: { gpa: 15, stress: 5 } },
+    { id: "bua_may_man", name: "Bùa Qua Môn", icon: "🧧", price: 50, description: "Tâm linh tương thông, mua sự tự tin.", effect: { stress: -30, happiness: 10, gpa: 5 } }
+  ];
+
   const syncToDatabase = async (updatedAchievements: string[], currentStats: PlayerStats, day: number) => {
     if (!currentUser) return;
     try {
@@ -226,28 +203,26 @@ export default function App() {
         body: JSON.stringify({
           username: currentUser.username,
           studentId: currentUser.studentId,
-          achievements: updatedAchievements, // Mảng các ID cúp
-          stats: currentStats,               // Chỉ số hiện tại
-          currentDay: day                    // Ngày đang chơi
+          achievements: updatedAchievements,
+          stats: currentStats,
+          currentDay: day
         })
       });
     } catch (err) {
       console.error("Lỗi đồng bộ dữ liệu với máy chủ:", err);
     }
   };
+
   useEffect(() => { gameAudio.enabled = soundEnabled; }, [soundEnabled]);
-  // --- TÍNH NĂNG AUTO-SAVE: Tự động đồng bộ lên Database ---
+
   useEffect(() => {
-    // Chỉ lưu khi người chơi đang ở trong màn hình game chính
     if (currentUser && (phase === "GAMEPLAY" || phase === "DAILY_FEEDBACK" || phase === "EVENT" || phase === "START")) {
       const timer = setTimeout(() => {
         syncToDatabase(unlockedAchievements, stats, currentDay);
-      }, 1000); // Đợi 1s sau khi các hiệu ứng chạy xong mới lưu để tránh lag
+      }, 1000); 
       return () => clearTimeout(timer);
     }
   }, [stats, currentDay, unlockedAchievements, currentUser, phase]);
-  // --------------------------------------------------------
-  
 
   const loadLeaderboard = async () => {
     try {
@@ -256,6 +231,7 @@ export default function App() {
       if (res.ok) setLeaderboard(data);
     } catch (error) { console.error("Không thể tải bảng xếp hạng", error); }
   };
+  
   useEffect(() => { if (phase === "LEADERBOARD") loadLeaderboard(); }, [phase]);
 
   const handleRegister = async () => {
@@ -280,16 +256,13 @@ export default function App() {
       setCurrentUser(data as UserProfile); 
       setPlayerName(data.fullName); 
       
-      // --- NẠP DỮ LIỆU TỪ DATABASE VÀO GAME ---
       if (data.achievements && data.achievements.length > 0) setUnlockedAchievements(data.achievements);
       if (data.stats) setStats(data.stats);
       if (data.currentDay) setCurrentDay(data.currentDay);
       
-      // Khởi tạo lại một ngày mới sạch sẽ cho tài khoản này
       setCurrentSlot("morning");
       setSlotLog([]);
       setHistory([]);
-      // ----------------------------------------
 
       setPhase("START"); 
       gameAudio.playSelect();
@@ -334,21 +307,18 @@ export default function App() {
 
   const handleStartGame = () => { 
     gameAudio.playSelect(); 
-    // Nếu ngày hiện tại lớn hơn 1 (đã có file save), vào thẳng GamePlay
     if (currentDay > 1) {
       setPhase("GAMEPLAY");
     } else {
-      setPhase("INTRO"); // Chưa chơi thì mới vào tạo nhân vật
+      setPhase("INTRO"); 
     }
   };
+
   const unlockAchievement = (id: string) => {
     if (!unlockedAchievements.includes(id) && currentUser) {
       const updated = [...unlockedAchievements, id]; 
       setUnlockedAchievements(updated); 
-      
-      // GỌI HÀM ĐỒNG BỘ THAY CHO LOCALSTORAGE
       syncToDatabase(updated, stats, currentDay);
-
       setUnlockedNotice(ACHIEVEMENTS.find(a => a.id === id)?.title || ""); 
       gameAudio.playPositive(); 
       setTimeout(() => setUnlockedNotice(""), 4000);
@@ -364,6 +334,22 @@ export default function App() {
 
     setStats(initStats); setSkippedClassesCount(0); setDodgeCount(0);
     setCurrentWeather(WEATHERS[0]); setPhase("GAMEPLAY"); setCurrentDay(1); setHistory([]); setCurrentSlot("morning");
+  };
+
+  const handleBuyItem = (item: any) => {
+    if (stats.money < item.price) {
+      alert("Không đủ VNĐ rồi bạn ơi! Ráng đi làm thêm nhé.");
+      gameAudio.playNegative();
+      return;
+    }
+    gameAudio.playPositive();
+    const draftStats = { ...stats };
+    draftStats.money -= item.price;
+    const statKeys = ["gpa", "stress", "energy", "happiness"] as const;
+    statKeys.forEach(k => {
+      if (item.effect[k]) draftStats[k] = updateStatWithLimits(draftStats[k], item.effect[k]);
+    });
+    setStats(draftStats);
   };
 
   const calculateFinalImpact = (activityId: string, baseCost: Record<string, number>, extraImpact: Partial<PlayerStats> = {}) => {
@@ -449,56 +435,27 @@ export default function App() {
       const calc = calculateFinalImpact(rollActId, {}, outcomeDetail.statsImpact); 
       criticalImpact = calc.finalImpact; 
       ancestralDodged = calc.ancestralDodged || false;
-      // Đã xóa hàm setStats cũ ở đây để tránh lỗi nhân đôi chỉ số
     }
 
-    // --- HỆ THỐNG TRỪ TIỀN ĂN MỖI NGÀY ---
-    const DAILY_FOOD_COST = -10; // Trừ 10 VNĐ tiền sinh hoạt phí
+    const DAILY_FOOD_COST = -10; 
     criticalImpact.money = (criticalImpact.money || 0) + DAILY_FOOD_COST;
     const textWithFood = outcomeDetail.text + " (💸 Đã tiêu 10 VNĐ tiền ăn/sinh hoạt phí hôm nay).";
-    // ------------------------------------
 
     setDailyFeedback({ activityId: rollActId, activityName: completedSlotLog.map(l => l.activityName.split(": ")[1] || l.activityName).join(" ➔ "), isCritical, title: outcomeDetail.title, text: textWithFood, statsImpact: criticalImpact, ancestralDodged });
     
     if (matchingEvent) { setActiveEvent(matchingEvent); setPhase("EVENT"); } else setPhase("DAILY_FEEDBACK");
   };
 
-    const actsPlayedIds = completedSlotLog.map(l => {
-      const name = l.activityName.toLowerCase();
-      if (name.includes("thư viện")) return "library"; if (name.includes("làm thêm")) return "parttime"; if (name.includes("câu lạc bộ")) return "club"; if (name.includes("nhậu")) return "party"; if (name.includes("ngủ")) return "rest"; return "lecture";
-    });
-    const rollActId = actsPlayedIds[Math.floor(Math.random() * actsPlayedIds.length)] || "lecture";
-    const actOutcomes = DAILY_OUTCOMES[rollActId];
-    const roll = Math.random();
-
-    let isCritical: "success" | "disaster" | "none" = "none";
-    let outcomeDetail: OutcomeDetail = { title: "Nhật Ký Ngày Bình Yên", text: "Bạn vừa kết thúc một ngày sinh viên cực kỳ bận rộn. Mệt nhoài nhưng thật xứng đáng vì đã quản lý thời gian khoa học!", statsImpact: {} };
-
-    if (roll < 0.12 && actOutcomes) { isCritical = "success"; outcomeDetail = actOutcomes.criticalSuccess; gameAudio.playPositive(); }
-    else if (roll < 0.24 && actOutcomes) { isCritical = "disaster"; outcomeDetail = actOutcomes.criticalDisaster; gameAudio.playNegative(); }
-    else if (actOutcomes && actOutcomes.normalDays && actOutcomes.normalDays.length > 0) outcomeDetail = actOutcomes.normalDays[Math.floor(Math.random() * actOutcomes.normalDays.length)];
-
-    let criticalImpact: Record<string, number> = {}; let ancestralDodged = false;
-    if (isCritical !== "none") {
-      const calc = calculateFinalImpact(rollActId, {}, outcomeDetail.statsImpact); criticalImpact = calc.finalImpact; ancestralDodged = calc.ancestralDodged || false;
-      const postCriticalStats = { ...currentStats }; const statKeys = ["gpa", "stress", "energy", "money", "happiness"] as const;
-      statKeys.forEach(k => { postCriticalStats[k] = updateStatWithLimits(postCriticalStats[k], criticalImpact[k] || 0); });
-      setStats(postCriticalStats);
-    }
-    setDailyFeedback({ activityId: rollActId, activityName: completedSlotLog.map(l => l.activityName.split(": ")[1] || l.activityName).join(" ➔ "), isCritical, title: outcomeDetail.title, text: outcomeDetail.text, statsImpact: criticalImpact, ancestralDodged });
-    if (matchingEvent) { setActiveEvent(matchingEvent); setPhase("EVENT"); } else setPhase("DAILY_FEEDBACK");
-  };
-
   const handleSelectEventOption = (option: ChoiceOption) => {
     if (option.outcome.gpa >= 0 && option.outcome.happiness >= 0) gameAudio.playPositive(); else gameAudio.playNegative();
     
-    // --- HỆ THỐNG TRỪ TIỀN ĂN KHI GẶP BIẾN CỐ ---
     const impact = { ...option.outcome } as Record<string, number>;
     impact.money = (impact.money || 0) - 10;
     const textWithFood = option.outcome.textFeedback + " (💸 Đã tiêu 10 VNĐ tiền ăn/sinh hoạt phí hôm nay).";
     
     setChoiceFeedback({ text: textWithFood, statsImpact: impact });
   };
+
   const handleConfirmFeedback = async () => {
     gameAudio.playTap(); if (!activeEvent) return;
     const eventImpact = choiceFeedback ? choiceFeedback.statsImpact : {};
@@ -508,7 +465,6 @@ export default function App() {
     const newLog: GameHistoryEntry = { day: currentDay, activityName: daySummary, eventTitle: ancestralDodged ? `[ĐÃ NÉ] ${activeEvent.title}` : activeEvent.title, choiceMade: choiceFeedback ? "Đã lướt qua" : undefined, statsImpact: finalImpact };
     setHistory([newLog, ...history]);
     
-    // Đã xóa hàm setStats thừa để sửa triệt để lỗi double-apply khi kết thúc Event
     const isGameOver = evaluateEndDayStats(stats, finalImpact); 
     
     setActiveEvent(null); setChoiceFeedback(null); setSelectedActivity(null); setSlotLog([]); setCurrentSlot("morning");
@@ -563,10 +519,9 @@ export default function App() {
   return (
     <div className="min-h-screen text-stone-100 font-sans selection:bg-amber-500 selection:text-black flex flex-col justify-between relative overflow-hidden">
         <div className={`pointer-events-none fixed inset-0 z-50 transition-all duration-1000 ${isDanger ? 'opacity-100 bg-red-950/20 shadow-[inset_0_0_150px_rgba(220,38,38,0.3)] animate-pulse' : 'opacity-0'}`} />
-      {/* Dynamic Sky Background Component */}
+      
       <SkyBackground slot={currentSlot} phase={phase} />
 
-      {/* Global Notice Toast */}
       <AnimatePresence>
         {unlockedNotice && (
           <motion.div initial={{ opacity: 0, y: -50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -20, scale: 0.9 }} className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 rounded-2xl bg-black/70 border border-amber-500/50 text-amber-300 font-bold text-xs shadow-2xl flex items-center gap-2.5 backdrop-blur-xl">
@@ -599,7 +554,6 @@ export default function App() {
                   gameAudio.playTap();
                   setCurrentUser(null); 
                   setPhase("AUTH"); 
-                  // --- DỌN SẠCH RÁC BỘ NHỚ CỦA TÀI KHOẢN CŨ ---
                   setCurrentSlot("morning");
                   setSlotLog([]);
                   setHistory([]);
@@ -625,7 +579,6 @@ export default function App() {
               </button>
             )}
             
-            {/* WIDGET LIVE SCORE THÊM MỚI Ở ĐÂY */}
             {phase === "GAMEPLAY" && (
               <div className="flex items-center bg-black/40 border border-white/10 px-4 py-1.5 rounded-full shadow-inner backdrop-blur-md transition-all">
                 <span className="text-[10px] font-black text-zinc-400 mr-2 uppercase tracking-widest drop-shadow-sm hidden md:inline">Score</span>
@@ -635,13 +588,11 @@ export default function App() {
               </div>
             )}
             
-            
-            {/* Nút Bảng xếp hạng hiển thị khi đã đăng nhập */}
             {currentUser && phase !== "AUTH" && phase !== "LEADERBOARD" && (
               <button 
                 onClick={() => { 
                   gameAudio.playTap(); 
-                  setPrevPhase(phase); // Lưu lại màn hình hiện tại đang chơi
+                  setPrevPhase(phase);
                   setPhase("LEADERBOARD"); 
                 }} 
                 className="px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 transition-all text-xs font-bold text-amber-400 flex items-center gap-1.5 cursor-pointer select-none"
@@ -660,10 +611,8 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-6 flex flex-col justify-center relative z-10">
         <motion.div animate={isVibrating ? { x: [-6, 6, -6, 6, -3, 3, 0], y: [-2, 2, -2, 2, 0, 0, 0] } : {}} transition={{ duration: 0.4 }} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* SIDEBAR */}
           {phase !== "START" && phase !== "INTRO" && phase !== "AUTH" && phase !== "LEADERBOARD" && (
             <aside className="lg:col-span-4 space-y-5">
-              {/* KHỐI KÍNH MỜ ĐEN SANG TRỌNG */}
               <div className="p-5 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/10 shadow-2xl space-y-5">
                 <div className="flex items-center gap-3.5">
                   <div className="h-11 w-11 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-xl shadow-inner shrink-0">{currentUser?.avatar || "🧑‍🎓"}</div>
@@ -712,7 +661,6 @@ export default function App() {
           <div className={`${phase === "START" || phase === "INTRO" || phase === "AUTH" || phase === "LEADERBOARD" ? "lg:col-span-12" : "lg:col-span-8"} w-full`}>
             <AnimatePresence mode="wait">
 
-              {/* MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (AUTH) */}
               {phase === "AUTH" && (
                 <motion.div key="auth" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} className="max-w-md mx-auto w-full p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/10 shadow-2xl space-y-6 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-500" />
@@ -769,7 +717,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* BẢNG XẾP HẠNG (LEADERBOARD) */}
               {phase === "LEADERBOARD" && (
                 <motion.div key="leaderboard" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto w-full p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/10 shadow-2xl space-y-6">
                   <div className="text-center space-y-2">
@@ -778,12 +725,10 @@ export default function App() {
                     <p className="text-sm text-zinc-300">Top sinh viên có thành tích xuất sắc nhất sau 14 ngày</p>
                   </div>
 
-                  {/* Đã thêm max-h-[50vh] và overflow-y-auto để cuộn, pr-2 để hở viền cho thanh cuộn */}
                   <div className="space-y-3 mt-6 max-h-[50vh] overflow-y-auto pr-2">
                     {leaderboard.length === 0 ? (
                       <p className="text-center text-zinc-400 py-10">Chưa có ai hoàn thành học kỳ. Hãy là người đầu tiên!</p>
                     ) : (
-                      /* Đã bỏ .slice(0, 10) để hiển thị toàn bộ danh sách */
                       leaderboard.map((entry, index) => (
                         <div key={index} className={`flex items-center justify-between p-4 rounded-2xl border backdrop-blur-md ${index === 0 ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.15)]' : index === 1 ? 'bg-zinc-300/20 border-zinc-300/50' : index === 2 ? 'bg-orange-700/20 border-orange-700/50' : 'bg-black/40 border-white/10'}`}>
                           <div className="flex items-center gap-4">
@@ -808,7 +753,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* PHASE 1: START WELCOME SCREEN */}
               {phase === "START" && (
                 <motion.div key="start" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-xl mx-auto p-10 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/10 shadow-2xl text-center space-y-7">
                   <div className="relative inline-block mx-auto">
@@ -828,7 +772,7 @@ export default function App() {
                   
                   <div className="grid grid-cols-2 gap-4 mt-6">
                     <button onClick={handleStartGame} className="w-full py-4.5 rounded-xl bg-amber-500 text-neutral-950 font-black text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-[1.02] active:scale-95 transition-all cursor-pointer mx-auto block uppercase tracking-widest">
-                      Bắt đầu
+                      {currentDay > 1 ? `Tiếp tục (Ngày ${currentDay})` : "Bắt đầu mới"}
                     </button>
                     <button onClick={() => { setPrevPhase(phase); setPhase("LEADERBOARD"); }} className="w-full py-4.5 rounded-xl bg-black/60 backdrop-blur-md hover:bg-black/80 border border-white/10 text-amber-400 font-black text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all cursor-pointer mx-auto flex items-center justify-center gap-2 uppercase tracking-widest">
                       <Trophy className="h-4 w-4" /> Bảng xếp hạng
@@ -837,7 +781,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* PHASE 2: CHARACTER CREATION (INTRO) */}
               {phase === "INTRO" && (
                 <motion.div key="intro" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="max-w-4xl mx-auto p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/10 shadow-2xl space-y-7">
                   <div className="text-center space-y-1.5 border-b border-white/10 pb-5">
@@ -880,10 +823,8 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* PHASE 3: GAMEPLAY LOOP SCHEDULER */}
               {phase === "GAMEPLAY" && (
                 <motion.div key="gameplay" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
-                  {/* PANEL LỚN NHẤT */}
                   <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/10 shadow-2xl space-y-5">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/10 pb-3.5 gap-2">
                       <div>
@@ -900,7 +841,6 @@ export default function App() {
                       </div>
                     </div>
                     
-                    {/* WIDGET THỜI GIAN */}
                     <div className="p-5 rounded-2xl bg-black/40 border border-white/10 flex items-start gap-4 shadow-inner">
                       <div className={`h-10 w-10 rounded-lg flex items-center justify-center font-black text-lg shrink-0 shadow-md ${slotSchedule.type === "class" ? "bg-amber-500/20 text-amber-400 border border-amber-500/40" : "bg-white/10 text-stone-200 border border-white/20"}`}>
                         {slotSchedule.type === "class" ? "📚" : "🍃"}
@@ -919,7 +859,6 @@ export default function App() {
                       
                       {slotSchedule.type === "class" ? (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {/* Option 1: Lên Lớp Học */}
                           <motion.button 
                             whileHover={{ scale: 1.02, y: -4 }} 
                             whileTap={{ scale: 0.98 }} 
@@ -943,7 +882,6 @@ export default function App() {
                             </div>
                           </motion.button>
 
-                          {/* Option 2: Cúp Làm Thêm */}
                           <motion.button 
                             whileHover={{ scale: 1.02, y: -4 }} 
                             whileTap={{ scale: 0.98 }} 
@@ -967,7 +905,6 @@ export default function App() {
                             </div>
                           </motion.button>
 
-                          {/* Option 3: Cúp Ngủ Nướng */}
                           <motion.button 
                             whileHover={{ scale: 1.02, y: -4 }} 
                             whileTap={{ scale: 0.98 }} 
@@ -1033,7 +970,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* CÁC PHASE CÒN LẠI ĐƯỢC ÁP DỤNG GLASSMORPHISM TƯƠNG TỰ */}
               {phase === "DAILY_FEEDBACK" && dailyFeedback && (
                 <motion.div key="daily_feedback" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="max-w-xl mx-auto p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/10 shadow-2xl text-center space-y-6">
                   <div className="flex justify-center">
@@ -1179,6 +1115,7 @@ export default function App() {
           </>
         )}
       </AnimatePresence>
+
       {/* HISTORY MODAL */}
       <AnimatePresence>
         {showHistoryModal && (
