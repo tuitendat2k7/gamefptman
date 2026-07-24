@@ -669,7 +669,7 @@ export default function App() {
                   
                   <div className="text-center space-y-2 mb-2">
                     <h2 className="text-2xl md:text-3xl font-display font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-br from-stone-100 to-zinc-400 drop-shadow-sm">
-                      WEBSITE HIỆN TẠI ĐANG NÂNG CẤP VÀ BẢO TRÌ!!!!
+                      Game Sinh Tồn Dành Cho Sinh Viên Năm Nhất
                     </h2>
                     <p className="text-sm text-zinc-300 font-medium">
                       {authMode === "login" 
