@@ -568,12 +568,7 @@ export default function App() {
               </div>
             )}
             
-            {phase === "GAMEPLAY" && (
-              <button onClick={() => { gameAudio.playTap(); setShowHistoryModal(true); }} className="px-3 py-1.5 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/60 border border-white/10 transition-all text-xs font-bold text-stone-200 flex items-center gap-1.5 cursor-pointer select-none">
-                <FileText className="h-3.5 w-3.5" />
-                <span>Nhật ký ({history.length})</span>
-              </button>
-            )}
+            
             {phase === "GAMEPLAY" && (
               <button onClick={() => { gameAudio.playTap(); setShowShopModal(true); }} className="px-3 py-1.5 rounded-xl bg-amber-500/20 backdrop-blur-md hover:bg-amber-500/40 border border-amber-500/50 transition-all text-xs font-bold text-amber-400 flex items-center gap-1.5 cursor-pointer select-none shadow-[0_0_10px_rgba(245,158,11,0.2)]">
                 <Store className="h-3.5 w-3.5" />
