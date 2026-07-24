@@ -173,6 +173,7 @@ export default function App() {
   const [activeEvent, setActiveEvent] = useState<GameEvent | null>(null);
   const [choiceFeedback, setChoiceFeedback] = useState<any>(null);
   const [history, setHistory] = useState<GameHistoryEntry[]>([]);
+  const [accumulatedTotal, setAccumulatedTotal] = useState<number>(0);
   
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
@@ -269,13 +270,33 @@ export default function App() {
     } catch (err) { alert("Lỗi kết nối tới Server Database!"); } finally { setIsLoading(false); }
   };
 
-  const calculateFinalScore = () => Math.round(((stats.gpa + (100 - stats.stress) + stats.energy + stats.money + stats.happiness) / 5) * 10) / 10;
-  const handleEndSemester = async () => {
-    const score = calculateFinalScore();
-    if (currentUser) {
-      try { await fetch('/api/submit-score', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ studentId: currentUser.studentId, fullName: currentUser.fullName, avatar: currentUser.avatar, score: score }) }); } catch (err) { }
-    }
+  const calculateFinalScore = () => {
+    const baseScore = (stats.gpa + (100 - stats.stress) + stats.energy + stats.money + stats.happiness) / 5;
+    const achievementBonus = unlockedAchievements.length * 5;
+    return Math.round((baseScore + achievementBonus) * 10) / 10;
   };
+
+  // Tự động CỘNG DỒN điểm khi vào màn hình SUMMARY
+  useEffect(() => {
+    if (phase === "SUMMARY" && currentUser) {
+      const currentRunScore = calculateFinalScore();
+      
+      fetch('/api/leaderboard')
+        .then(res => res.json())
+        .then(data => {
+          const oldData = data.find((u: any) => u.student_id === currentUser.studentId);
+          const previousScore = oldData ? Number(oldData.score) : 0;
+          
+          const newTotal = Math.round((previousScore + currentRunScore) * 10) / 10;
+          setAccumulatedTotal(newTotal);
+
+          return fetch('/api/submit-score', { 
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ studentId: currentUser.studentId, fullName: currentUser.fullName, avatar: currentUser.avatar, score: newTotal }) 
+          });
+        }).catch(err => console.error(err));
+    }
+  }, [phase]);
 
   const triggerHapticVisual = () => { setIsVibrating(true); setTimeout(() => setIsVibrating(false), 500); };
   const updateStatWithLimits = (current: number, change: number): number => Math.min(100, Math.max(0, current + change));
@@ -473,7 +494,7 @@ export default function App() {
     
     if (!isGameOver) {
       unlockAchievement("first_day");
-      if (currentDay >= SEMESTER_DAYS) { unlockAchievement("survivor"); if (stats.stress <= 10) unlockAchievement("zen_master"); await handleEndSemester(); gameAudio.playPositive(); setPhase("SUMMARY"); }
+      if (currentDay >= SEMESTER_DAYS) { unlockAchievement("survivor"); if (stats.stress <= 10) unlockAchievement("zen_master"); gameAudio.playPositive(); setPhase("SUMMARY"); }
       else { setCurrentDay(currentDay + 1); setCurrentWeather(WEATHERS[Math.floor(Math.random() * WEATHERS.length)]); setPhase("GAMEPLAY"); }
     }
   };
@@ -491,7 +512,7 @@ export default function App() {
 
     if (!isGameOver) {
       unlockAchievement("first_day");
-      if (currentDay >= SEMESTER_DAYS) { unlockAchievement("survivor"); if (stats.stress <= 10) unlockAchievement("zen_master"); await handleEndSemester(); gameAudio.playPositive(); setPhase("SUMMARY"); }
+      if (currentDay >= SEMESTER_DAYS) { unlockAchievement("survivor"); if (stats.stress <= 10) unlockAchievement("zen_master"); gameAudio.playPositive(); setPhase("SUMMARY"); }
       else { setCurrentDay(currentDay + 1); setCurrentWeather(WEATHERS[Math.floor(Math.random() * WEATHERS.length)]); setPhase("GAMEPLAY"); }
     }
   };
@@ -513,7 +534,7 @@ export default function App() {
   const dowInfo = getDayOfWeek(currentDay);
   const slotSchedule = getSlotSchedule(currentDay, currentSlot);
   const badge = getStudentBadge();
-  const currentScore = Math.floor((stats.gpa * 1000) + (stats.money * 10) + (stats.happiness * 20) - (stats.stress * 5));
+  const currentScore = calculateFinalScore();
   const isHighStress = stats.stress >= 80;
   const isLowEnergy = stats.energy <= 15;
   const isDanger = isHighStress || isLowEnergy;
@@ -567,7 +588,6 @@ export default function App() {
                 </button>
               </div>
             )}
-            
             
             {phase === "GAMEPLAY" && (
               <button onClick={() => { gameAudio.playTap(); setShowShopModal(true); }} className="px-3 py-1.5 rounded-xl bg-amber-500/20 backdrop-blur-md hover:bg-amber-500/40 border border-amber-500/50 transition-all text-xs font-bold text-amber-400 flex items-center gap-1.5 cursor-pointer select-none shadow-[0_0_10px_rgba(245,158,11,0.2)]">
@@ -1052,11 +1072,17 @@ export default function App() {
                   <div className="space-y-2"><h2 className="text-3xl font-display font-black text-stone-100 uppercase tracking-widest drop-shadow-md">Hoàn Thành Học Kỳ!</h2><p className="text-sm font-bold text-stone-200 max-w-sm mx-auto leading-relaxed drop-shadow-sm">Chúc mừng bạn đã sinh tồn xuất sắc qua 14 ngày đầy bão tố! Kết quả đã lưu vào CSDL.</p></div>
                   <div className={`p-6 rounded-2xl border backdrop-blur-md ${badge.color.replace('bg-','bg-black/60 ')} text-left space-y-2.5 max-w-md mx-auto shadow-lg`}><span className="text-[11px] font-black uppercase tracking-widest block opacity-75 drop-shadow-sm">BẰNG CHỨNG NHẬN ĐẠI HỌC</span><h4 className="text-base md:text-lg font-display font-black tracking-wide leading-tight drop-shadow-md">{badge.title}</h4><p className="text-xs md:text-sm text-stone-100 leading-relaxed font-sans font-bold">{badge.description}</p></div>
                   
-                  <div className="p-6 rounded-2xl bg-black/40 border border-indigo-500/40 max-w-md mx-auto backdrop-blur-md shadow-lg">
-                    <span className="text-xs text-indigo-300 font-black uppercase tracking-widest block mb-2 drop-shadow-sm">ĐIỂM XẾP HẠNG CỦA BẠN</span>
-                    <p className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 drop-shadow-lg">
-                      {calculateFinalScore()} <span className="text-lg text-zinc-400">/ 100</span>
-                    </p>
+                  <div className="p-6 rounded-2xl bg-black/40 border border-indigo-500/40 max-w-md mx-auto backdrop-blur-md shadow-lg space-y-4">
+                    <div>
+                      <span className="text-[10px] text-zinc-400 font-black uppercase tracking-widest block mb-1">Điểm nhận được từ ván này</span>
+                      <p className="text-3xl font-black text-stone-200">+{calculateFinalScore()}</p>
+                    </div>
+                    <div className="pt-4 border-t border-white/10">
+                      <span className="text-xs text-indigo-300 font-black uppercase tracking-widest block mb-1 drop-shadow-sm">TỔNG ĐIỂM TÍCH LŨY TRÊN BXH</span>
+                      <p className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 drop-shadow-lg">
+                        {accumulatedTotal > 0 ? accumulatedTotal : "..."} <span className="text-lg text-zinc-400">ĐIỂM</span>
+                      </p>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 max-w-md mx-auto pt-2">
@@ -1086,7 +1112,7 @@ export default function App() {
       </main>
 
       <footer className="border-t border-white/10 bg-black/20 py-6 px-4 text-center text-xs text-zinc-400 font-mono select-none relative z-10 backdrop-blur-md">
-        <p>© 2026 Freshman Survival - Dự án game sinh tồn nhóm 2 môn SSA</p>
+        <p className="font-bold text-zinc-300 tracking-wide">© 2026 Freshman Survival - Dự án game sinh tồn nhóm 2 môn SSA</p>
       </footer>
 
       {/* SHOP MODAL */}
